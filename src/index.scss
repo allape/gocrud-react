@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.ant-input-number {
+  width: 100%;
+}
+
+.ant-select-clear, .ant-input-clear-icon {
+  transform: scale(2);
+}
+
+.ant-modal {
+  max-width: 1200px;
+  top: 10px;
+}
