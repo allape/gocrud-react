@@ -1,4 +1,4 @@
-import { ConfigProvider, theme } from "antd";
+import { App, AppProps, ConfigProvider, theme } from "antd";
 import React, { PropsWithChildren, useEffect, useState } from "react";
 
 const darkColorSchemeMediaQuery = window.matchMedia(
@@ -9,9 +9,12 @@ function isPreferDark(): boolean {
   return darkColorSchemeMediaQuery.matches;
 }
 
-export type IThemeProviderProps = object;
+export interface IThemeProviderProps {
+  appProps?: AppProps;
+}
 
 export default function ThemeProvider({
+  appProps,
   children,
 }: PropsWithChildren<IThemeProviderProps>): React.ReactElement {
   const [darkMode, setDarkMode] = useState<boolean>(isPreferDark);
@@ -36,7 +39,7 @@ export default function ThemeProvider({
         algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
       }}
     >
-      {children}
+      <App {...appProps}>{children}</App>
     </ConfigProvider>
   );
 }
