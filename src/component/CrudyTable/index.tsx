@@ -189,9 +189,9 @@ export default function CrudyTable<
   const handleEdit = useCallback(
     (record: T) => {
       execute(async () => {
-        await beforeEdit?.(record, form);
-        setEditingRecord(record);
-        form.setFieldsValue(record as RecursivePartial<T>);
+        const newRecord = await beforeEdit?.(record, form);
+        setEditingRecord(newRecord || record);
+        form.setFieldsValue((newRecord || record) as RecursivePartial<T>);
         openForm();
       }).then();
     },
@@ -200,11 +200,12 @@ export default function CrudyTable<
 
   const handleAdd = useCallback(() => {
     execute(async () => {
-      if (defaultFormValue) {
-        form.setFieldsValue(defaultFormValue as RecursivePartial<T>);
-        setEditingRecord(defaultFormValue);
+      const newRecord =
+        (await beforeEdit?.(defaultFormValue as T, form)) || defaultFormValue;
+      if (newRecord) {
+        form.setFieldsValue(newRecord as RecursivePartial<T>);
+        setEditingRecord(newRecord);
       }
-      await beforeEdit?.(undefined, form);
       openForm();
     }).then();
   }, [beforeEdit, defaultFormValue, execute, form, openForm]);
@@ -278,8 +279,11 @@ export default function CrudyTable<
   }, [emitter, form, getList, openForm]);
 
   useEffect(() => {
+    setPagination({
+      ...DefaultPagination,
+    });
     getList().then();
-  }, [getList]);
+  }, [getList, setPagination]);
 
   return (
     <>

@@ -8,6 +8,8 @@ export * as aapi from "./src/api/antd.ts";
 export { default as CrudyButton } from "./src/component/CrudyButton";
 export { default as CrudySelector } from "./src/component/CrudySelector";
 export { default as CrudyTable } from "./src/component/CrudyTable";
+export { default as TableSearchDropdown } from "./src/component/CrudyTable/TableSearchDropdown.tsx";
+export { searchable } from "./src/component/CrudyTable/TableSearchDropdown.tsx";
 
 export { default as Flex } from "./src/component/Flex";
 export { default as ThemeProvider } from "./src/component/ThemeProvider";
