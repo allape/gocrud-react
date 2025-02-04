@@ -33,8 +33,9 @@ export function upload(
   url: string,
   file: File | Blob,
   getty: GetFunc = get,
+  config?: IRequestConfig<IResponse<string>, string>,
 ): Promise<string> {
-  return uploady(url, file, getty);
+  return uploady(url, file, getty, config);
 }
 
 export default class Crudy<T> extends C<T> {

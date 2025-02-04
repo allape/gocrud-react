@@ -1,5 +1,12 @@
-import { Modal, Tooltip } from "antd";
+import { Modal, TableProps, Tooltip } from "antd";
+import { FormInstance } from "rc-field-form/es/interface";
 import React from "react";
+
+export type RecursivePartial<T> = Parameters<
+  FormInstance<T>["setFieldsValue"]
+>[0];
+
+export type Pagination = Exclude<TableProps["pagination"], false | undefined>;
 
 export function EllipsisCell(
   length: number = 25,
@@ -38,13 +45,13 @@ export function EllipsisCell(
     return (
       <Tooltip title="Click or Tap">
         <span
-          style={{ cursor: "pointer" }}
           onClick={() =>
             Modal.info({
               title: "Viewer",
               content: complete,
               width: "calc(100vw - 20px)",
               maskClosable: true,
+              style: { top: "10px", cursor: "pointer" },
             })
           }
         >
