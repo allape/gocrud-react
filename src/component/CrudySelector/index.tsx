@@ -1,4 +1,5 @@
-import { useLoading } from "@allape/use-loading";
+import { IBase } from "@allape/gocrud/src/model";
+import { useLoading, useProxy } from "@allape/use-loading";
 import { Select, SelectProps, Spin } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   extends SelectProps {
   crudy: Crudy<T>;
+  pageSize?: number;
   labelPropName?: keyof T | string;
   valuePropName?: keyof T | string;
   searchParams?: KEYWORDS;
@@ -15,8 +17,10 @@ export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   onLoaded?: (records: T[]) => void;
 }
 
-export default function CrudySelector<T, KW = unknown>({
+export default function CrudySelector<T extends IBase, KW = unknown>({
+  value,
   crudy,
+  pageSize = 0,
   searchParams,
   labelPropName = "name",
   valuePropName = "id",
@@ -25,6 +29,8 @@ export default function CrudySelector<T, KW = unknown>({
   ...props
 }: ICrudySelectorProps<T, KW>): React.ReactElement {
   const { loading, execute } = useLoading();
+
+  const [, currentRef, setCurrent] = useProxy<T | undefined>(undefined);
   const [records, setRecords] = useState<DefaultOptionType[]>([]);
 
   const formatOptions = useCallback(
@@ -39,13 +45,58 @@ export default function CrudySelector<T, KW = unknown>({
     [labelPropName, valuePropName],
   );
 
-  const getList = useCallback(() => {
+  const getList = useCallback(
+    (keyword?: string) => {
+      execute(async () => {
+        let records: T[];
+
+        if (pageSize > 0) {
+          records = await crudy.page(1, pageSize, {
+            ...searchParams,
+            [labelPropName]: keyword,
+          });
+        } else {
+          records = await crudy.all({
+            ...searchParams,
+            [labelPropName]: keyword,
+          });
+        }
+
+        if (
+          currentRef.current &&
+          !records.find((record) => record.id === currentRef.current?.id)
+        ) {
+          records.push(currentRef.current);
+        }
+
+        onLoaded?.(records);
+        formatOptions(records);
+      }).then();
+    },
+    [
+      execute,
+      pageSize,
+      currentRef,
+      onLoaded,
+      formatOptions,
+      crudy,
+      searchParams,
+      labelPropName,
+    ],
+  );
+
+  useEffect(() => {
+    if (!value) {
+      setCurrent(undefined);
+      return;
+    }
     execute(async () => {
-      const records = await crudy.all(searchParams);
-      onLoaded?.(records);
-      formatOptions(records);
+      const one = await crudy.one(value);
+      setRecords((old) =>
+        old.find((i) => i.id === one.id) ? old : [...old, one],
+      );
     }).then();
-  }, [crudy, execute, formatOptions, onLoaded, searchParams]);
+  }, [crudy, execute, setCurrent, value]);
 
   useEffect(() => {
     getList();
@@ -71,9 +122,11 @@ export default function CrudySelector<T, KW = unknown>({
   return (
     <Spin spinning={loading}>
       <Select
-        showSearch
-        optionFilterProp="label"
         {...props}
+        value={value}
+        onSearch={getList}
+        filterOption={false}
+        showSearch
         options={records}
       />
     </Spin>

@@ -59,6 +59,7 @@ export interface IFormEvent<T extends IBase> {
   ) => Promise<T | undefined> | T | void;
   beforeSave?: (record: T, form: FormInstance<T>) => Promise<T> | T | void;
   afterSaved?: (record: T, form: FormInstance<T>) => Promise<void> | void;
+  afterListed?: (records: T[]) => Promise<T[]> | T[];
   onDelete?: (record: T) => Promise<void>;
 }
 
@@ -106,6 +107,7 @@ export default function CrudyTable<
   beforeEdit,
   beforeSave,
   afterSaved,
+  afterListed,
   onDelete: _handleDelete,
 }: ICrudyTableProps<T, SP>): React.ReactElement {
   const { loading, execute } = useLoading();
@@ -120,21 +122,27 @@ export default function CrudyTable<
 
   const getList = useCallback(async () => {
     await execute(async () => {
+      let total = 0;
+      let records: T[];
+
       if (pageable) {
-        const records = await crudy.page<SP>(
+        records = await crudy.page<SP>(
           paginationRef.current.current,
           paginationRef.current.pageSize,
           searchParams,
         );
-        const total = await crudy.count<SP>(searchParams);
-        setList(records);
-        setPagination((prev) => ({ ...prev, total }));
+
+        total = await crudy.count<SP>(searchParams);
       } else {
-        const records = await crudy.all<SP>(searchParams);
-        setList(records);
+        records = await crudy.all<SP>(searchParams);
       }
+
+      const newRecords = await afterListed?.(records);
+      setList(newRecords || records);
+      setPagination((prev) => ({ ...prev, total }));
     });
   }, [
+    afterListed,
     crudy,
     execute,
     pageable,
@@ -326,6 +334,7 @@ export default function CrudyTable<
         okButtonProps={{ loading }}
         okText="Save"
         onOk={handleSave}
+        destroyOnClose
       >
         <Form<T> {...FormLayoutProps} form={form}>
           <Form.Item name="id" noStyle hidden>
