@@ -41,6 +41,7 @@ export default function TableSearchDropdown({
           onClick={() => {
             setValue("");
             handleSearch("");
+            onClose?.();
           }}
           size="small"
           style={{ width: 90 }}
