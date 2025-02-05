@@ -14,6 +14,7 @@ export { searchable } from "./src/component/CrudyTable/TableSearchDropdown.tsx";
 export { default as Flex } from "./src/component/Flex";
 export { default as ThemeProvider } from "./src/component/ThemeProvider";
 export { default as UpperModal } from "./src/component/UpperModal";
+export { default as useColorScheme } from "./src/hook/useColorScheme";
 
 export * as aconfig from "./src/config/antd.ts";
 export * as config from "./src/config";

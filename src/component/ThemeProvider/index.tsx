@@ -1,20 +1,7 @@
 import { App, AppProps, ConfigProvider, theme } from "antd";
-import {
-  PropsWithChildren,
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { PropsWithChildren, ReactElement, ReactNode } from "react";
+import useColorScheme from "../../hook/useColorScheme.ts";
 import { AntdAppWindow } from "../../vite-env";
-
-const darkColorSchemeMediaQuery = window.matchMedia(
-  "(prefers-color-scheme: dark)",
-);
-
-function isPreferDark(): boolean {
-  return darkColorSchemeMediaQuery.matches;
-}
 
 export interface IThemeProviderProps {
   appProps?: AppProps;
@@ -29,22 +16,7 @@ export default function ThemeProvider({
   appProps,
   children,
 }: PropsWithChildren<IThemeProviderProps>): ReactElement {
-  const [darkMode, setDarkMode] = useState<boolean>(isPreferDark);
-  useEffect(() => {
-    const handlePrefersColorSchemeChanged = () => {
-      setDarkMode(isPreferDark());
-    };
-    darkColorSchemeMediaQuery.addEventListener(
-      "change",
-      handlePrefersColorSchemeChanged,
-    );
-    return () => {
-      darkColorSchemeMediaQuery.removeEventListener(
-        "change",
-        handlePrefersColorSchemeChanged,
-      );
-    };
-  }, []);
+  const darkMode = useColorScheme();
   return (
     <ConfigProvider
       theme={{
