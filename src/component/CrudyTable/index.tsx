@@ -250,7 +250,7 @@ export default function CrudyTable<
         title: "Actions",
         key: "actions",
         fixed: "right",
-        width: 300,
+        width: 200,
         render: (_, record) => (
           <Space wrap>
             {editable && (
