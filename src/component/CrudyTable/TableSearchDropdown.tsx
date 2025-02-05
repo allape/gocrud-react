@@ -1,26 +1,38 @@
 import { IBase } from "@allape/gocrud/src/model";
 import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, TableColumnType } from "antd";
-import { ReactElement, useState } from "react";
+import { Button, Input, InputRef, Space, TableColumnType } from "antd";
+import { FilterDropdownProps } from "antd/es/table/interface";
+import { ReactElement, useEffect, useRef, useState } from "react";
 
 export interface ITableSearchDropdownProps {
+  props?: FilterDropdownProps;
   dataIndex: string;
   onSearch?: (dataIndex: string, value: string) => void;
-  onClose?: () => void;
 }
 
 export default function TableSearchDropdown({
+  props,
   dataIndex,
   onSearch,
-  onClose,
 }: ITableSearchDropdownProps): ReactElement {
+  const inputRef = useRef<InputRef | null>(null);
   const [value, setValue] = useState<string>("");
   const handleSearch = (keywords?: string) => {
     onSearch?.(dataIndex, keywords ?? value);
+    props?.close?.();
   };
+
+  useEffect(() => {
+    if (props?.visible) {
+      const id = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(id);
+    }
+  }, [props]);
+
   return (
     <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
       <Input
+        ref={inputRef}
         placeholder={`Search ${dataIndex}`}
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -41,14 +53,13 @@ export default function TableSearchDropdown({
           onClick={() => {
             setValue("");
             handleSearch("");
-            onClose?.();
           }}
           size="small"
           style={{ width: 90 }}
         >
           Reset
         </Button>
-        <Button type="link" size="small" onClick={onClose}>
+        <Button type="link" size="small" onClick={props?.close}>
           Close
         </Button>
       </Space>
@@ -63,11 +74,11 @@ export function searchable<T extends IBase>(
 ): Partial<TableColumnType<T>> {
   return {
     filterSearch: true,
-    filterDropdown: ({ close }) => (
+    filterDropdown: (props) => (
       <TableSearchDropdown
+        props={props}
         dataIndex={dataIndex}
         onSearch={onSearch}
-        onClose={close}
       />
     ),
     filterIcon: (filtered: boolean) => (
