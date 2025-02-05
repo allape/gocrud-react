@@ -33,7 +33,7 @@ const FormLayoutProps: Pick<FormProps, "labelCol" | "wrapperCol"> = {
 
 const DefaultPagination: ModifiedPagination = {
   current: 1,
-  pageSize: 20,
+  pageSize: 50,
   showSizeChanger: true,
   showQuickJumper: true,
   pageSizeOptions: ["10", "20", "50", "100"],
@@ -67,6 +67,7 @@ export interface IFormEvent<T extends IBase> {
 export interface ITable<T extends IBase> {
   scroll?: TableProps["scroll"];
   columns: TableColumnsType<T>;
+  pagination?: Pagination;
   actions?: (
     record: T,
     execute: UseLoadingReturn["execute"],
@@ -88,9 +89,10 @@ export interface ICrudyTableProps<
     ITable<T>,
     ICard {
   name: string;
-  emitter?: CrudyEventEmitter<T>;
   crudy: Crudy<T>;
+  className?: string;
   searchParams?: SP;
+  emitter?: CrudyEventEmitter<T>;
 }
 
 export default function CrudyTable<
@@ -104,12 +106,14 @@ export default function CrudyTable<
   pageable = true,
 
   name,
-  emitter,
   crudy,
+  className,
   searchParams,
+  emitter,
 
   scroll,
   columns,
+  pagination: paginationFromProps,
   actions,
   deleteButtonProps,
 
@@ -154,13 +158,19 @@ export default function CrudyTable<
 
       const newRecords = await afterListed?.(records);
       setList(newRecords || records);
-      setPagination((prev) => ({ ...DefaultPagination, ...prev, total }));
+      setPagination((prev) => ({
+        ...DefaultPagination,
+        ...paginationFromProps,
+        ...prev,
+        total,
+      }));
     });
   }, [
     afterListed,
     crudy,
     execute,
     pageable,
+    paginationFromProps,
     paginationRef,
     searchParams,
     setList,
@@ -307,13 +317,15 @@ export default function CrudyTable<
   useEffect(() => {
     setPagination({
       ...DefaultPagination,
+      ...paginationFromProps,
     });
     getList().then();
-  }, [getList, setPagination]);
+  }, [getList, paginationFromProps, setPagination]);
 
   return (
     <>
       <Card
+        className={className}
         title={
           <Flex justifyContent="flex-start">
             <span>Manage {name}</span>
