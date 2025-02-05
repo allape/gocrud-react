@@ -37,7 +37,7 @@ const DefaultPagination: ModifiedPagination = {
   showSizeChanger: true,
   showQuickJumper: true,
   pageSizeOptions: ["10", "20", "50", "100"],
-  showTotal: (total) => total,
+  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
 };
 
 export interface ISwitch {
@@ -128,7 +128,7 @@ export default function CrudyTable<
   const { loading, execute } = useLoading();
 
   const [pagination, paginationRef, setPagination] =
-    useProxy<ModifiedPagination>(DefaultPagination);
+    useProxy<ModifiedPagination>({} as ModifiedPagination);
   const [list, , setList] = useProxy<T[]>([]);
   const [formVisible, openForm, closeForm] = useToggle(false);
 
@@ -154,7 +154,7 @@ export default function CrudyTable<
 
       const newRecords = await afterListed?.(records);
       setList(newRecords || records);
-      setPagination((prev) => ({ ...prev, total }));
+      setPagination((prev) => ({ ...DefaultPagination, ...prev, total }));
     });
   }, [
     afterListed,
