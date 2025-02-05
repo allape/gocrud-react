@@ -11,6 +11,7 @@ export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   crudy: Crudy<T>;
   pageSize?: number;
   labelPropName?: keyof T | string;
+  searchPropName?: keyof T | string;
   valuePropName?: keyof T | string;
   searchParams?: KEYWORDS;
   emitter?: EventEmitter<"changed", T[] | undefined>;
@@ -23,6 +24,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
   pageSize = 0,
   searchParams,
   labelPropName = "name",
+  searchPropName = "",
   valuePropName = "id",
   emitter,
   onLoaded,
@@ -53,12 +55,12 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
         if (pageSize > 0) {
           records = await crudy.page(1, pageSize, {
             ...searchParams,
-            [labelPropName]: keyword,
+            [searchPropName || labelPropName]: keyword,
           });
         } else {
           records = await crudy.all({
             ...searchParams,
-            [labelPropName]: keyword,
+            [searchPropName || labelPropName]: keyword,
           });
         }
 
@@ -81,6 +83,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
       formatOptions,
       crudy,
       searchParams,
+      searchPropName,
       labelPropName,
     ],
   );

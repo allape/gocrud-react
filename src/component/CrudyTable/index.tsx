@@ -1,5 +1,6 @@
 import { IBase } from "@allape/gocrud";
 import { useLoading, useProxy, useToggle } from "@allape/use-loading";
+import { UseLoadingReturn } from "@allape/use-loading/lib/hook/useLoading";
 import {
   Button,
   ButtonProps,
@@ -64,8 +65,12 @@ export interface IFormEvent<T extends IBase> {
 }
 
 export interface ITable<T extends IBase> {
+  scroll?: TableProps["scroll"];
   columns: TableColumnsType<T>;
-  actions?: (record: T) => React.ReactNode;
+  actions?: (
+    record: T,
+    execute: UseLoadingReturn["execute"],
+  ) => React.ReactNode;
   deleteButtonProps?: ButtonProps;
 }
 
@@ -97,6 +102,7 @@ export default function CrudyTable<
   crudy,
   searchParams,
 
+  scroll,
   columns,
   actions,
   deleteButtonProps,
@@ -224,8 +230,10 @@ export default function CrudyTable<
       {
         title: "Actions",
         key: "actions",
+        fixed: "right",
+        width: 300,
         render: (_, record) => (
-          <Space>
+          <Space wrap>
             {editable && (
               <Button
                 size="small"
@@ -245,7 +253,7 @@ export default function CrudyTable<
                 </Button>
               </Popconfirm>
             )}
-            {actions?.(record)}
+            {actions?.(record, execute)}
           </Space>
         ),
       },
@@ -256,6 +264,7 @@ export default function CrudyTable<
       deletable,
       deleteButtonProps,
       editable,
+      execute,
       handleDelete,
       handleEdit,
     ],
@@ -319,7 +328,7 @@ export default function CrudyTable<
           dataSource={list}
           pagination={pageable ? pagination : false}
           onChange={handleChange}
-          scroll={{ x: true }}
+          scroll={scroll || { x: true }}
         />
       </Card>
       <UpperModal
