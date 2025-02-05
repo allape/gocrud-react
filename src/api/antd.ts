@@ -7,6 +7,7 @@ import C, {
   upload as uploady,
 } from "@allape/gocrud";
 import { Modal } from "antd";
+import { AntdAppWindow } from "../vite-env";
 
 export async function get<
   T = unknown,
@@ -15,8 +16,8 @@ export async function get<
   return getty<T>(url, {
     onError: async (e: unknown | Error): Promise<T> => {
       return new Promise((resolve, reject) => {
-        Modal.confirm({
-          title: "Network Error",
+        ((window as AntdAppWindow).antd?.modal || Modal).confirm({
+          title: "Error",
           content: `${url}: ${stringify(e)}`,
           okText: "Retry",
           cancelText: "Cancel",

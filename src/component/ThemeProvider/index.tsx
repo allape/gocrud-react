@@ -1,5 +1,12 @@
 import { App, AppProps, ConfigProvider, theme } from "antd";
-import React, { PropsWithChildren, useEffect, useState } from "react";
+import {
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
+import { AntdAppWindow } from "../../vite-env";
 
 const darkColorSchemeMediaQuery = window.matchMedia(
   "(prefers-color-scheme: dark)",
@@ -13,10 +20,15 @@ export interface IThemeProviderProps {
   appProps?: AppProps;
 }
 
+export function Wrapper({ children }: PropsWithChildren): ReactNode {
+  (window as AntdAppWindow).antd = App.useApp();
+  return children;
+}
+
 export default function ThemeProvider({
   appProps,
   children,
-}: PropsWithChildren<IThemeProviderProps>): React.ReactElement {
+}: PropsWithChildren<IThemeProviderProps>): ReactElement {
   const [darkMode, setDarkMode] = useState<boolean>(isPreferDark);
   useEffect(() => {
     const handlePrefersColorSchemeChanged = () => {
@@ -39,7 +51,9 @@ export default function ThemeProvider({
         algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
       }}
     >
-      <App {...appProps}>{children}</App>
+      <App {...appProps}>
+        <Wrapper>{children}</Wrapper>
+      </App>
     </ConfigProvider>
   );
 }

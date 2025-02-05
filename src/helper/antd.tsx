@@ -1,4 +1,4 @@
-import { Modal, TableProps, Tooltip } from "antd";
+import { Modal, SelectProps, TableProps, Tooltip } from "antd";
 import { FormInstance } from "rc-field-form/es/interface";
 import React from "react";
 
@@ -7,6 +7,14 @@ export type RecursivePartial<T> = Parameters<
 >[0];
 
 export type Pagination = Exclude<TableProps["pagination"], false | undefined>;
+
+export type LVs = Exclude<SelectProps["options"], undefined>;
+
+export type LV = LVs[number];
+
+export interface ILV<VALUE extends LV["value"]> extends LV {
+  value: VALUE;
+}
 
 export function EllipsisCell(
   length: number = 25,
