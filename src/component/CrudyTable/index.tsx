@@ -74,13 +74,19 @@ export interface ITable<T extends IBase> {
   deleteButtonProps?: ButtonProps;
 }
 
+export interface ICard {
+  extra?: React.ReactNode;
+  titleExtra?: React.ReactNode;
+}
+
 export interface ICrudyTableProps<
   T extends IBase = IBase,
   SP extends object = object,
 > extends ISwitch,
     IForm<T>,
     IFormEvent<T>,
-    ITable<T> {
+    ITable<T>,
+    ICard {
   name: string;
   emitter?: CrudyEventEmitter<T>;
   crudy: Crudy<T>;
@@ -109,6 +115,9 @@ export default function CrudyTable<
 
   children,
   defaultFormValue,
+
+  extra,
+  titleExtra,
 
   beforeEdit,
   beforeSave,
@@ -318,8 +327,10 @@ export default function CrudyTable<
                 Reload
               </Button>
             )}
+            {titleExtra}
           </Flex>
         }
+        extra={extra}
       >
         <Table<T>
           loading={loading}
