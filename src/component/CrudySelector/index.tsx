@@ -95,6 +95,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
     }
     execute(async () => {
       const one = await crudy.one(value);
+      setCurrent(one);
       setRecords((old) =>
         old.find((i) => i.id === one.id) ? old : [...old, one],
       );
