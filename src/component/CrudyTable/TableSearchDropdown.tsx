@@ -7,12 +7,14 @@ import { ReactElement, useEffect, useRef, useState } from "react";
 export interface ITableSearchDropdownProps {
   props?: FilterDropdownProps;
   dataIndex: string;
+  name: string;
   onSearch?: (dataIndex: string, value: string) => void;
 }
 
 export default function TableSearchDropdown({
   props,
   dataIndex,
+  name,
   onSearch,
 }: ITableSearchDropdownProps): ReactElement {
   const inputRef = useRef<InputRef | null>(null);
@@ -33,7 +35,7 @@ export default function TableSearchDropdown({
     <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
       <Input
         ref={inputRef}
-        placeholder={`Search ${dataIndex}`}
+        placeholder={`Search ${name}`}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onPressEnter={() => handleSearch()}
@@ -70,6 +72,7 @@ export default function TableSearchDropdown({
 // eslint-disable-next-line react-refresh/only-export-components
 export function searchable<T extends IBase>(
   dataIndex: string,
+  name: string,
   onSearch: Exclude<ITableSearchDropdownProps["onSearch"], undefined>,
 ): Partial<TableColumnType<T>> {
   return {
@@ -78,6 +81,7 @@ export function searchable<T extends IBase>(
       <TableSearchDropdown
         props={props}
         dataIndex={dataIndex}
+        name={name}
         onSearch={onSearch}
       />
     ),
