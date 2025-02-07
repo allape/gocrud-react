@@ -11,7 +11,7 @@ export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   crudy: Crudy<T>;
   pageSize?: number;
   labelPropName?: keyof T | string;
-  searchPropName?: keyof T | string;
+  searchPropName?: keyof T | keyof KEYWORDS | string;
   valuePropName?: keyof T | string;
   searchParams?: KEYWORDS;
   emitter?: EventEmitter<"changed", T[] | undefined>;
@@ -32,7 +32,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 }: ICrudySelectorProps<T, KW>): React.ReactElement {
   const { loading, execute } = useLoading();
 
-  const [, currentRef, setCurrent] = useProxy<T | undefined>(undefined);
+  const [, currentRef, setCurrent] = useProxy<T[]>([]);
   const [records, setRecords] = useState<DefaultOptionType[]>([]);
 
   const formatOptions = useCallback(
@@ -64,12 +64,11 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
           });
         }
 
-        if (
-          currentRef.current &&
-          !records.find((record) => record.id === currentRef.current?.id)
-        ) {
-          records.push(currentRef.current);
-        }
+        currentRef.current.forEach((selected) => {
+          if (!records.find((record) => record.id === selected.id)) {
+            records.push(selected);
+          }
+        });
 
         onLoaded?.(records);
         formatOptions(records);
@@ -89,15 +88,27 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
   );
 
   useEffect(() => {
-    if (!value) {
-      setCurrent(undefined);
+    if (!value || (value instanceof Array && value.length === 0)) {
+      setCurrent([]);
       return;
     }
     execute(async () => {
-      const one = await crudy.one(value);
-      setCurrent(one);
+      const ids = [];
+      if (value instanceof Array) {
+        ids.push(...value);
+      } else {
+        ids.push(value);
+      }
+
+      const users = await Promise.all(ids.map((id) => crudy.one(id)));
+      setCurrent(users);
       setRecords((old) =>
-        old.find((i) => i.id === one.id) ? old : [...old, one],
+        users.length === 0
+          ? old
+          : [
+              ...old,
+              ...users.filter((i) => !old.find((j) => j.value === i.id)),
+            ],
       );
     }).then();
   }, [crudy, execute, setCurrent, value]);

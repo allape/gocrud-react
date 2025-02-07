@@ -6,6 +6,7 @@ import {
   ButtonProps,
   Card,
   Form,
+  FormInstance,
   FormProps,
   Input,
   Popconfirm,
@@ -14,7 +15,6 @@ import {
   TableColumnsType,
   TableProps,
 } from "antd";
-import { FormInstance } from "rc-field-form/es/interface";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Crudy from "../../api/antd.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
