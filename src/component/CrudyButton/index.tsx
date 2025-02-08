@@ -2,6 +2,8 @@ import { IBase } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
 import { Button, ButtonProps } from "antd";
 import React, { useCallback, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
+import Default from '../../i18n';
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
 import UpperModal from "../UpperModal";
 import NewCrudyButtonEventEmitter, {
@@ -25,6 +27,8 @@ export default function CrudyButton<
   buttonProps,
   ...props
 }: ICrudyButtonProps<T, SP>): React.ReactElement {
+  const { t } = useTranslation();
+
   const [tableVisible, openTable_, closeTable] = useToggle(false);
 
   const openTable = useCallback(() => {
@@ -45,7 +49,7 @@ export default function CrudyButton<
   return (
     <>
       <Button {...buttonProps} onClick={openTable}>
-        Manage {name}
+        {t('gocrud.manage') || Default.gocrud.manage} {name}
       </Button>
       <UpperModal
         open={tableVisible}

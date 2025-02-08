@@ -7,6 +7,8 @@ import C, {
   upload as uploady,
 } from "@allape/gocrud";
 import { Modal } from "antd";
+import i18next from "i18next";
+import Default from "../i18n";
 import { AntdAppWindow } from "../vite-env";
 
 export async function get<
@@ -17,10 +19,12 @@ export async function get<
     onError: async (e: unknown | Error): Promise<T> => {
       return new Promise((resolve, reject) => {
         ((window as AntdAppWindow).antd?.modal || Modal).confirm({
-          title: "Error",
+          title: i18next.t("gocrud.error") || Default.gocrud.error,
           content: `${url}: ${stringify(e)}`,
-          okText: "Retry",
-          cancelText: "Cancel",
+          okText:
+            i18next.t("gocrud.retryQuestionMark") ||
+            Default.gocrud.retryQuestionMark,
+          cancelText: i18next.t("gocrud.cancel") || Default.gocrud.cancel,
           onOk: () => resolve(get(url, config)),
           onCancel: () => reject(e),
         });

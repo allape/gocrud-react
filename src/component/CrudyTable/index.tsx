@@ -16,6 +16,7 @@ import {
   TableProps,
 } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
@@ -129,6 +130,8 @@ export default function CrudyTable<
   afterListed,
   onDelete: _handleDelete,
 }: ICrudyTableProps<T, SP>): React.ReactElement {
+  const { t } = useTranslation();
+
   const { loading, execute } = useLoading();
 
   const [pagination, paginationRef, setPagination] =
@@ -247,7 +250,7 @@ export default function CrudyTable<
     () => [
       ...columns,
       {
-        title: "Actions",
+        title: t("gocrud.actions") || "Actions",
         key: "actions",
         fixed: "right",
         width: 200,
@@ -259,16 +262,18 @@ export default function CrudyTable<
                 type="link"
                 onClick={() => handleEdit(record)}
               >
-                Edit
+                {t("gocrud.edit") || "Edit"}
               </Button>
             )}
             {deletable && (
               <Popconfirm
-                title={`Delete this record?`}
+                title={t("gocrud.deleteThisRecord") || "Delete this record?"}
                 onConfirm={() => handleDelete(record)}
               >
                 <Button size="small" type="link" danger {...deleteButtonProps}>
-                  {deleteButtonProps?.children || "Delete"}
+                  {deleteButtonProps?.children ||
+                    t("gocrud.delete") ||
+                    "Delete"}
                 </Button>
               </Popconfirm>
             )}
@@ -286,6 +291,7 @@ export default function CrudyTable<
       execute,
       handleDelete,
       handleEdit,
+      t,
     ],
   );
 
@@ -328,15 +334,17 @@ export default function CrudyTable<
         className={className}
         title={
           <Flex justifyContent="flex-start">
-            <span>Manage {name}</span>
+            <span>
+              {t("gocrud.manage") || "Manage"} {name}
+            </span>
             {creatable && (
               <Button type="primary" onClick={handleAdd}>
-                Add {name}
+                {t("gocrud.add") || "Add"} {name}
               </Button>
             )}
             {reloadable && (
               <Button loading={loading} onClick={getList}>
-                Reload
+                {t("gocrud.reload") || "Reload"}
               </Button>
             )}
             {titleExtra}
@@ -357,14 +365,14 @@ export default function CrudyTable<
       <UpperModal
         open={formVisible}
         width={800}
-        title={`${editingRecord?.id ? "Edit" : "Create"} ${name}`}
+        title={`${editingRecord?.id ? t("gocrud.edit") || "Edit" : t("gocrud.add") || "Add"} ${name}`}
         afterClose={handleFormClose}
         onCancel={closeForm}
         keyboard={false}
         cancelButtonProps={{ disabled: loading }}
-        cancelText="Cancel"
+        cancelText={t("gocrud.cancel") || "Cancel"}
         okButtonProps={{ loading }}
-        okText="Save"
+        okText={t("gocrud.save") || "Save"}
         onOk={handleSave}
         destroyOnClose
       >

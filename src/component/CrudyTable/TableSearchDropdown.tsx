@@ -3,6 +3,8 @@ import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, InputRef, Space, TableColumnType } from "antd";
 import { FilterDropdownProps } from "antd/es/table/interface";
 import { ReactElement, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import Default from "../../i18n";
 
 export interface ITableSearchDropdownProps {
   props?: FilterDropdownProps;
@@ -17,6 +19,8 @@ export default function TableSearchDropdown({
   name,
   onSearch,
 }: ITableSearchDropdownProps): ReactElement {
+  const { t } = useTranslation();
+
   const inputRef = useRef<InputRef | null>(null);
   const [value, setValue] = useState<string>("");
   const handleSearch = (keywords?: string) => {
@@ -35,7 +39,7 @@ export default function TableSearchDropdown({
     <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
       <Input
         ref={inputRef}
-        placeholder={`Search ${name}`}
+        placeholder={`${t("gocrud.search") || Default.gocrud.search} ${name}`}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onPressEnter={() => handleSearch()}
@@ -49,7 +53,7 @@ export default function TableSearchDropdown({
           size="small"
           style={{ width: 90 }}
         >
-          Search
+          {t("gocrud.search") || Default.gocrud.search}
         </Button>
         <Button
           onClick={() => {
@@ -59,10 +63,10 @@ export default function TableSearchDropdown({
           size="small"
           style={{ width: 90 }}
         >
-          Reset
+          {t("gocrud.reset") || Default.gocrud.reset}
         </Button>
         <Button type="link" size="small" onClick={props?.close}>
-          Close
+          {t("gocrud.close") || Default.gocrud.close}
         </Button>
       </Space>
     </div>
