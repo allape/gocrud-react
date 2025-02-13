@@ -1,3 +1,4 @@
+import { i18n } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, InputRef, Space, TableColumnType } from "antd";
@@ -39,7 +40,7 @@ export default function TableSearchDropdown({
     <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
       <Input
         ref={inputRef}
-        placeholder={`${t("gocrud.search") || Default.gocrud.search} ${name}`}
+        placeholder={`${i18n.ot("gocrud.search", Default.gocrud.search, t)} ${name}`}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onPressEnter={() => handleSearch()}
@@ -53,7 +54,7 @@ export default function TableSearchDropdown({
           size="small"
           style={{ width: 90 }}
         >
-          {t("gocrud.search") || Default.gocrud.search}
+          {i18n.ot("gocrud.search", Default.gocrud.search, t)}
         </Button>
         <Button
           onClick={() => {
@@ -63,10 +64,10 @@ export default function TableSearchDropdown({
           size="small"
           style={{ width: 90 }}
         >
-          {t("gocrud.reset") || Default.gocrud.reset}
+          {i18n.ot("gocrud.reset", Default.gocrud.reset, t)}
         </Button>
         <Button type="link" size="small" onClick={props?.close}>
-          {t("gocrud.close") || Default.gocrud.close}
+          {i18n.ot("gocrud.close", Default.gocrud.close, t)}
         </Button>
       </Space>
     </div>

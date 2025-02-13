@@ -1,4 +1,4 @@
-import { IBase } from "@allape/gocrud";
+import { i18n, IBase } from "@allape/gocrud";
 import { useLoading, useProxy, useToggle } from "@allape/use-loading";
 import { UseLoadingReturn } from "@allape/use-loading/lib/hook/useLoading";
 import {
@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
+import Default from "../../i18n";
 import Flex from "../Flex";
 import UpperModal from "../UpperModal";
 import CrudyEventEmitter from "./eventemitter.ts";
@@ -32,6 +33,7 @@ const FormLayoutProps: Pick<FormProps, "labelCol" | "wrapperCol"> = {
   wrapperCol: { span: 24 },
 };
 
+// noinspection JSUnusedGlobalSymbols
 const DefaultPagination: ModifiedPagination = {
   current: 1,
   pageSize: 50,
@@ -250,7 +252,7 @@ export default function CrudyTable<
     () => [
       ...columns,
       {
-        title: t("gocrud.actions") || "Actions",
+        title: i18n.ot("gocrud.actions", Default.gocrud.actions, t),
         key: "actions",
         fixed: "right",
         width: 200,
@@ -262,18 +264,21 @@ export default function CrudyTable<
                 type="link"
                 onClick={() => handleEdit(record)}
               >
-                {t("gocrud.edit") || "Edit"}
+                {i18n.ot("gocrud.edit", Default.gocrud.edit, t)}
               </Button>
             )}
             {deletable && (
               <Popconfirm
-                title={t("gocrud.deleteThisRecord") || "Delete this record?"}
+                title={i18n.ot(
+                  "gocrud.deleteThisRecord",
+                  Default.gocrud.deleteThisRecord,
+                  t,
+                )}
                 onConfirm={() => handleDelete(record)}
               >
                 <Button size="small" type="link" danger {...deleteButtonProps}>
                   {deleteButtonProps?.children ||
-                    t("gocrud.delete") ||
-                    "Delete"}
+                    i18n.ot("gocrud.delete", Default.gocrud.delete, t)}
                 </Button>
               </Popconfirm>
             )}
@@ -335,16 +340,16 @@ export default function CrudyTable<
         title={
           <Flex justifyContent="flex-start">
             <span>
-              {t("gocrud.manage") || "Manage"} {name}
+              {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
             </span>
             {creatable && (
               <Button type="primary" onClick={handleAdd}>
-                {t("gocrud.add") || "Add"} {name}
+                {i18n.ot("gocrud.add", Default.gocrud.add, t)} {name}
               </Button>
             )}
             {reloadable && (
               <Button loading={loading} onClick={getList}>
-                {t("gocrud.reload") || "Reload"}
+                {i18n.ot("gocrud.reload", Default.gocrud.reload, t)}
               </Button>
             )}
             {titleExtra}
@@ -365,14 +370,14 @@ export default function CrudyTable<
       <UpperModal
         open={formVisible}
         width={800}
-        title={`${editingRecord?.id ? t("gocrud.edit") || "Edit" : t("gocrud.add") || "Add"} ${name}`}
+        title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
         afterClose={handleFormClose}
         onCancel={closeForm}
         keyboard={false}
         cancelButtonProps={{ disabled: loading }}
-        cancelText={t("gocrud.cancel") || "Cancel"}
+        cancelText={i18n.ot("gocrud.cancel", Default.gocrud.cancel, t)}
         okButtonProps={{ loading }}
-        okText={t("gocrud.save") || "Save"}
+        okText={i18n.ot("gocrud.save", Default.gocrud.save, t)}
         onOk={handleSave}
         destroyOnClose
       >

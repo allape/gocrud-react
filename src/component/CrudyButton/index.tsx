@@ -1,9 +1,9 @@
-import { IBase } from "@allape/gocrud";
+import { i18n, IBase } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
 import { Button, ButtonProps } from "antd";
 import React, { useCallback, useEffect } from "react";
-import { useTranslation } from 'react-i18next';
-import Default from '../../i18n';
+import { useTranslation } from "react-i18next";
+import Default from "../../i18n";
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
 import UpperModal from "../UpperModal";
 import NewCrudyButtonEventEmitter, {
@@ -49,7 +49,7 @@ export default function CrudyButton<
   return (
     <>
       <Button {...buttonProps} onClick={openTable}>
-        {t('gocrud.manage') || Default.gocrud.manage} {name}
+        {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
       </Button>
       <UpperModal
         open={tableVisible}

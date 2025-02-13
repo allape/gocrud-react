@@ -1,13 +1,13 @@
 import C, {
   get as getty,
   GetFunc,
+  i18n,
   IRequestConfig,
   IResponse,
   stringify,
   upload as uploady,
 } from "@allape/gocrud";
 import { Modal } from "antd";
-import i18next from "i18next";
 import Default from "../i18n";
 import { AntdAppWindow } from "../vite-env";
 
@@ -19,12 +19,13 @@ export async function get<
     onError: async (e: unknown | Error): Promise<T> => {
       return new Promise((resolve, reject) => {
         ((window as AntdAppWindow).antd?.modal || Modal).confirm({
-          title: i18next.t("gocrud.error") || Default.gocrud.error,
+          title: i18n.ot("gocrud.error", Default.gocrud.error),
           content: `${url}: ${stringify(e)}`,
-          okText:
-            i18next.t("gocrud.retryQuestionMark") ||
+          okText: i18n.ot(
+            "gocrud.retryQuestionMark",
             Default.gocrud.retryQuestionMark,
-          cancelText: i18next.t("gocrud.cancel") || Default.gocrud.cancel,
+          ),
+          cancelText: i18n.ot("gocrud.cancel", Default.gocrud.cancel),
           onOk: () => resolve(get(url, config)),
           onCancel: () => reject(e),
         });
