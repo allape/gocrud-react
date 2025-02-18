@@ -9,14 +9,12 @@ import Default from "../../i18n";
 
 export interface ITableSearchDropdownProps {
   props?: FilterDropdownProps;
-  dataIndex: string;
   name: string;
-  onSearch?: (dataIndex: string, value: string) => void;
+  onSearch?: (value: string) => void;
 }
 
 export default function TableSearchDropdown({
   props,
-  dataIndex,
   name,
   onSearch,
 }: ITableSearchDropdownProps): ReactElement {
@@ -25,7 +23,7 @@ export default function TableSearchDropdown({
   const inputRef = useRef<InputRef | null>(null);
   const [value, setValue] = useState<string>("");
   const handleSearch = (keywords?: string) => {
-    onSearch?.(dataIndex, keywords ?? value);
+    onSearch?.(keywords ?? value);
     props?.close?.();
   };
 
@@ -76,19 +74,13 @@ export default function TableSearchDropdown({
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function searchable<T extends IBase>(
-  dataIndex: string,
   name: string,
   onSearch: Exclude<ITableSearchDropdownProps["onSearch"], undefined>,
 ): Partial<TableColumnType<T>> {
   return {
     filterSearch: true,
     filterDropdown: (props) => (
-      <TableSearchDropdown
-        props={props}
-        dataIndex={dataIndex}
-        name={name}
-        onSearch={onSearch}
-      />
+      <TableSearchDropdown props={props} name={name} onSearch={onSearch} />
     ),
     filterIcon: (filtered: boolean) => (
       <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
