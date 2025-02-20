@@ -92,7 +92,7 @@ export interface ICrudyTableProps<
     ITable<T>,
     ICard {
   name: string;
-  crudy: Crudy<T>;
+  crudy?: Crudy<T>;
   className?: string;
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T>;
@@ -145,6 +145,10 @@ export default function CrudyTable<
   const [editingRecord, setEditingRecord] = useState<Partial<T> | undefined>();
 
   const getList = useCallback(async () => {
+    if (!crudy) {
+      return;
+    }
+
     await execute(async () => {
       let total = 0;
       let records: T[];
@@ -195,6 +199,9 @@ export default function CrudyTable<
   }, [form]);
 
   const handleSave = useCallback(async () => {
+    if (!crudy) {
+      return;
+    }
     await execute(async () => {
       let record = await form.validateFields();
       if (beforeSave) {
@@ -212,6 +219,9 @@ export default function CrudyTable<
 
   const handleDelete = useCallback(
     async (record: T) => {
+      if (!crudy) {
+        return;
+      }
       await execute(async () => {
         if (_handleDelete) {
           await _handleDelete(record);
@@ -330,6 +340,7 @@ export default function CrudyTable<
       ...DefaultPagination,
       ...paginationFromProps,
     });
+
     getList().then();
   }, [getList, paginationFromProps, setPagination]);
 
