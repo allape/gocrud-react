@@ -2,11 +2,16 @@ import { IBase } from "@allape/gocrud/src/model";
 import { useLoading, useToggle } from "@allape/use-loading";
 import { Button, Card, Form, Input, InputNumber, Modal } from "antd";
 import { ReactElement, useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ThemeProvider from "./component/ThemeProvider";
 import { FormLayoutProps } from "./config/antd.ts";
+import { setup } from "./i18n";
 import styles from "./style.module.scss";
 
+setup().then();
+
 export default function App(): ReactElement {
+  const { t } = useTranslation();
   const { loading, execute } = useLoading();
 
   const [record, setRecord] = useState<IBase | undefined>();
@@ -32,7 +37,7 @@ export default function App(): ReactElement {
         extra={
           <>
             <Button type="primary" onClick={openModal}>
-              Open Modal
+              {t("gocrud.add")}
             </Button>
           </>
         }
@@ -48,6 +53,8 @@ export default function App(): ReactElement {
         maskClosable={!loading}
         onCancel={closeModal}
         cancelButtonProps={{ disabled: loading }}
+        okText={t("gocrud.save")}
+        cancelText={t("gocrud.cancel")}
         onOk={handleOk}
         okButtonProps={{ loading }}
       >
