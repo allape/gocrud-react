@@ -2,7 +2,7 @@ import { i18n } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, Input, InputRef, Space, TableColumnType } from "antd";
-import { FilterDropdownProps } from "antd/es/table/interface";
+import type { FilterDropdownProps } from "antd/es/table/interface";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Default from "../../i18n";

@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import { useAppProps } from "antd/es/app/context";
+import type { useAppProps } from "antd/es/app/context";
 
 declare interface ImportMetaEnv {
   /**

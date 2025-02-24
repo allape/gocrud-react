@@ -14,6 +14,8 @@ const Default = {
     delete: "Delete",
     deleteThisRecord: "Delete this record?",
     actions: "Actions",
+    viewer: "Viewer",
+    clickToReview: "Click to review",
   },
 };
 

@@ -1,6 +1,9 @@
-import { Modal, SelectProps, TableProps, Tooltip } from "antd";
-import { FormInstance } from "rc-field-form/es/interface";
+import { i18n } from "@allape/gocrud";
+import { SelectProps, TableProps, Tooltip } from "antd";
+import type { FormInstance } from "rc-field-form/es/interface";
 import React from "react";
+import ClickToReview from "../component/ClickToReview";
+import Default from "../i18n";
 
 export type RecursivePartial<T> = Parameters<
   FormInstance<T>["setFieldsValue"]
@@ -51,21 +54,14 @@ export function EllipsisCell(
     }
 
     return (
-      <Tooltip title="Click or Tap">
-        <span
-          onClick={() =>
-            Modal.info({
-              title: "Viewer",
-              content: complete,
-              width: "calc(100vw - 20px)",
-              maskClosable: true,
-              style: { top: "10px", cursor: "pointer" },
-            })
-          }
-        >
-          {partial}
-        </span>
-      </Tooltip>
+      <ClickToReview
+        tooltip={i18n.ot("gocrud.clickToReview", Default.gocrud.clickToReview)}
+        title={i18n.ot("gocrud.viewer", Default.gocrud.viewer)}
+        okText={i18n.ot("gocrud.close", Default.gocrud.close)}
+        content={complete}
+      >
+        {partial}
+      </ClickToReview>
     );
   };
 }
