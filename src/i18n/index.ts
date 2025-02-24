@@ -24,6 +24,8 @@ const Default = {
 
 export default Default;
 
+export const EN = Default;
+
 export const ZHCN: typeof Default = {
   gocrud: {
     add: "添加",
@@ -55,7 +57,7 @@ export async function setup(
       translation: ZHCN,
     },
     en: {
-      translation: Default,
+      translation: EN,
     },
   },
 ): Promise<TFunction> {

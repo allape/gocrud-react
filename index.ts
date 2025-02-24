@@ -1,5 +1,6 @@
-import Crudy from "./src/api/antd.ts";
 import "./src/index.scss";
+
+import Crudy from "./src/api/antd.ts";
 
 export default Crudy;
 
@@ -22,4 +23,4 @@ export * as aconfig from "./src/config/antd.ts";
 export * as config from "./src/config";
 export * as ahelper from "./src/helper/antd";
 
-export { default as i18n } from "./src/i18n";
+export * as i18n from "./src/i18n";
