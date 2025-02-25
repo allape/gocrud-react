@@ -1,14 +1,22 @@
-import { Plugin } from "vite";
+// import { Plugin } from "vite";
 
-export interface IGoCrudVitePluginOptions {
-  appendOptimizeDeps?: boolean;
-}
+/**
+ * @typedef IGoCrudVitePluginOptions
+ * @property {boolean=} appendOptimizeDeps
+ */
+// export interface IGoCrudVitePluginOptions {
+//   appendOptimizeDeps?: boolean;
+// }
 
+/**
+ * @param {IGoCrudVitePluginOptions=} options
+ * @returns {import('vite').Plugin}
+ */
 export default function GoCrudVitePlugin(
-  options: IGoCrudVitePluginOptions = {
+  options = {
     appendOptimizeDeps: true,
   },
-): Plugin {
+) {
   return {
     name: "GoCrudVitePlugin",
     config: (config, env) => {
@@ -23,7 +31,6 @@ export default function GoCrudVitePlugin(
           },
         };
       }
-
       return null;
     },
   };
