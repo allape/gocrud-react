@@ -1,13 +1,3 @@
-// import { Plugin } from "vite";
-
-/**
- * @typedef IGoCrudVitePluginOptions
- * @property {boolean=} appendOptimizeDeps
- */
-// export interface IGoCrudVitePluginOptions {
-//   appendOptimizeDeps?: boolean;
-// }
-
 /**
  * @param {IGoCrudVitePluginOptions=} options
  * @returns {import('vite').Plugin}
