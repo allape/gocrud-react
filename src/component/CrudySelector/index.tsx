@@ -1,13 +1,18 @@
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading, useProxy } from "@allape/use-loading";
-import { Select, SelectProps, Spin } from "antd";
+import { Select, SelectProps, Space, Spin } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import Crudy from "../../api/antd.ts";
 import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 
 export interface ICrudySelectorProps<T, KEYWORDS = unknown>
-  extends SelectProps {
+  extends Omit<SelectProps, "children"> {
   crudy: Crudy<T>;
   pageSize?: number;
   labelPropName?: keyof T | string;
@@ -28,8 +33,9 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
   valuePropName = "id",
   emitter,
   onLoaded,
+  children,
   ...props
-}: ICrudySelectorProps<T, KW>): React.ReactElement {
+}: PropsWithChildren<ICrudySelectorProps<T, KW>>): React.ReactElement {
   const { loading, execute } = useLoading();
 
   const [, currentRef, setCurrent] = useProxy<T[]>([]);
@@ -136,14 +142,17 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   return (
     <Spin spinning={loading}>
-      <Select
-        {...props}
-        value={value}
-        onSearch={getList}
-        filterOption={false}
-        showSearch
-        options={records}
-      />
+      <Space.Compact>
+        <Select
+          {...props}
+          value={value}
+          onSearch={getList}
+          filterOption={false}
+          showSearch
+          options={records}
+        />
+        {children}
+      </Space.Compact>
     </Spin>
   );
 }

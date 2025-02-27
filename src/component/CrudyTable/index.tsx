@@ -57,11 +57,13 @@ export interface IForm<T extends IBase> {
 }
 
 export interface IFormEvent<T extends IBase> {
+  onFormInit?: (form: FormInstance<T>) => void;
   beforeEdit?: (
     record: T | undefined,
     form: FormInstance<T>,
   ) => Promise<T | undefined> | T | void;
   beforeSave?: (record: T, form: FormInstance<T>) => Promise<T> | T | void;
+  onSave?: (record: T) => Promise<T>;
   afterSaved?: (record: T, form: FormInstance<T>) => Promise<void> | void;
   afterListed?: (records: T[]) => Promise<T[]> | T[];
   onDelete?: (record: T) => Promise<void>;
@@ -126,8 +128,10 @@ export default function CrudyTable<
   extra,
   titleExtra,
 
+  onFormInit,
   beforeEdit,
   beforeSave,
+  onSave,
   afterSaved,
   afterListed,
   onDelete: _handleDelete,
@@ -143,6 +147,10 @@ export default function CrudyTable<
 
   const [form] = Form.useForm<T>();
   const [editingRecord, setEditingRecord] = useState<Partial<T> | undefined>();
+
+  useEffect(() => {
+    onFormInit?.(form);
+  }, [form, onFormInit]);
 
   const getList = useCallback(async () => {
     if (!crudy) {
@@ -210,12 +218,21 @@ export default function CrudyTable<
           record = newRecord;
         }
       }
-      const saved = await crudy.save(record);
+      const saved = await (onSave ? onSave(record) : crudy.save(record));
       await afterSaved?.(saved, form);
       closeForm();
       await getList();
     });
-  }, [afterSaved, beforeSave, closeForm, crudy, execute, form, getList]);
+  }, [
+    afterSaved,
+    beforeSave,
+    closeForm,
+    crudy,
+    execute,
+    form,
+    getList,
+    onSave,
+  ]);
 
   const handleDelete = useCallback(
     async (record: T) => {
