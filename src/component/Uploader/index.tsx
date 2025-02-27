@@ -1,4 +1,4 @@
-import { GetFunc } from "@allape/gocrud";
+import { GetFunc, XFileDigestHeader } from "@allape/gocrud";
 import { sha256ToHex } from "@allape/gocrud/src/sha256.ts";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload, UploadFile, UploadProps } from "antd";
@@ -82,6 +82,9 @@ export default function Uploader({
           get,
           {
             signal: ac.signal,
+            headers: {
+              [XFileDigestHeader]: digest,
+            },
           },
         );
         onProgress?.({ percent: 100 });

@@ -5,10 +5,7 @@ import { ReactElement, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ThemeProvider from "./component/ThemeProvider";
 import { FormLayoutProps } from "./config/antd.ts";
-import { setup } from "./i18n";
 import styles from "./style.module.scss";
-
-setup().then();
 
 export default function App(): ReactElement {
   const { t } = useTranslation();
