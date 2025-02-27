@@ -24,4 +24,6 @@ export * as aconfig from "./src/config/antd.ts";
 export * as config from "./src/config";
 export * as ahelper from "./src/helper/antd";
 
+export * from "./src/helper/datetime.ts";
+
 export * as i18n from "./src/i18n";

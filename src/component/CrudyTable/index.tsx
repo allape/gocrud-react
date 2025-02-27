@@ -9,6 +9,7 @@ import {
   FormInstance,
   FormProps,
   Input,
+  ModalProps,
   Popconfirm,
   Space,
   Table,
@@ -54,6 +55,7 @@ export interface ISwitch {
 export interface IForm<T extends IBase> {
   children?: React.ReactNode | ((record?: Partial<T>) => React.ReactNode);
   defaultFormValue?: Partial<T>;
+  saveModalProps?: ModalProps;
 }
 
 export interface IFormEvent<T extends IBase> {
@@ -124,6 +126,7 @@ export default function CrudyTable<
 
   children,
   defaultFormValue,
+  saveModalProps,
 
   extra,
   titleExtra,
@@ -401,13 +404,13 @@ export default function CrudyTable<
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
         afterClose={handleFormClose}
         onCancel={closeForm}
-        keyboard={false}
         cancelButtonProps={{ disabled: loading }}
         cancelText={i18n.ot("gocrud.cancel", Default.gocrud.cancel, t)}
         okButtonProps={{ loading }}
         okText={i18n.ot("gocrud.save", Default.gocrud.save, t)}
         onOk={handleSave}
         destroyOnClose
+        {...saveModalProps}
       >
         <Form<T> {...FormLayoutProps} form={form}>
           <Form.Item name="id" noStyle hidden>

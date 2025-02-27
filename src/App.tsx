@@ -5,6 +5,7 @@ import { ReactElement, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ThemeProvider from "./component/ThemeProvider";
 import { FormLayoutProps } from "./config/antd.ts";
+import { asDefaultPattern } from './helper/datetime.ts';
 import styles from "./style.module.scss";
 
 export default function App(): ReactElement {
@@ -42,6 +43,7 @@ export default function App(): ReactElement {
         <pre>
           <code>{record ? JSON.stringify(record, null, 4) : "----"}</code>
         </pre>
+        <div>Now {asDefaultPattern(new Date())}</div>
       </Card>
       <Modal
         open={visible}
