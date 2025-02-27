@@ -207,6 +207,7 @@ export default function CrudyTable<
 
   const handleFormClose = useCallback(() => {
     form.resetFields();
+    setEditingRecord(undefined);
   }, [form]);
 
   const handleSave = useCallback(async () => {
