@@ -56,6 +56,13 @@ export { default as useColorScheme } from "./src/hook/useColorScheme";
 export * as config from "./src/config";
 
 export * from "./src/helper/antd";
-export * from "./src/helper/datetime.ts";
+export * from "./src/helper/datetime";
+export {
+  default as EventEmitter,
+  EEEvent,
+  type EEEventListener,
+  DefaultChannel,
+  type IOptions,
+} from "./src/helper/eventemitter";
 
 export * as i18n from "./src/i18n";

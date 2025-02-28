@@ -44,6 +44,8 @@ const DefaultPagination: ModifiedPagination = {
   showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
 };
 
+export type FalseToStop = false | boolean | void;
+
 export interface ISwitch {
   reloadable?: boolean;
   creatable?: boolean;
@@ -66,7 +68,10 @@ export interface IFormEvent<T extends IBase> {
   ) => Promise<T | undefined> | T | void;
   beforeSave?: (record: T, form: FormInstance<T>) => Promise<T> | T | void;
   onSave?: (record: T) => Promise<T>;
-  afterSaved?: (record: T, form: FormInstance<T>) => Promise<void> | void;
+  afterSaved?: (
+    record: T,
+    form: FormInstance<T>,
+  ) => Promise<FalseToStop> | FalseToStop;
   afterListed?: (records: T[]) => Promise<T[]> | T[];
   onDelete?: (record: T) => Promise<void>;
 }
@@ -222,8 +227,12 @@ export default function CrudyTable<
           record = newRecord;
         }
       }
+
       const saved = await (onSave ? onSave(record) : crudy.save(record));
-      await afterSaved?.(saved, form);
+      if ((await afterSaved?.(saved, form)) === false) {
+        return;
+      }
+
       closeForm();
       await getList();
     });

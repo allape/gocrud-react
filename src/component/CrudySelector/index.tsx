@@ -6,13 +6,29 @@ import React, {
   PropsWithChildren,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import Crudy from "../../api/antd.ts";
+import { ILV } from "../../helper/antd.tsx";
 import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
+
+export type Millisecond = number;
+
+export function BuildLV<T, V extends string | number>(
+  records: T[],
+  labelPropName: keyof T | string,
+  valuePropName: keyof T | string,
+): ILV<V>[] {
+  return records.map((record) => ({
+    label: record[labelPropName as keyof T] as string,
+    value: record[valuePropName as keyof T] as V,
+  }));
+}
 
 export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   extends Omit<SelectProps, "children"> {
+  buildLV?: typeof BuildLV<T, IBase["id"]>;
   crudy: Crudy<T>;
   pageSize?: number;
   labelPropName?: keyof T | string;
@@ -21,9 +37,11 @@ export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   searchParams?: KEYWORDS;
   emitter?: EventEmitter<"changed", T[] | undefined>;
   onLoaded?: (records: T[]) => void;
+  searchDelay?: Millisecond;
 }
 
 export default function CrudySelector<T extends IBase, KW = unknown>({
+  buildLV = BuildLV,
   value,
   crudy,
   pageSize = 0,
@@ -31,6 +49,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
   labelPropName = "name",
   searchPropName = "",
   valuePropName = "id",
+  searchDelay = 200,
   emitter,
   onLoaded,
   children,
@@ -40,18 +59,6 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   const [, currentRef, setCurrent] = useProxy<T[]>([]);
   const [records, setRecords] = useState<DefaultOptionType[]>([]);
-
-  const formatOptions = useCallback(
-    (records: T[]) => {
-      setRecords(
-        records.map((record) => ({
-          label: record[labelPropName as keyof T] as string,
-          value: record[valuePropName as keyof T] as string,
-        })),
-      );
-    },
-    [labelPropName, valuePropName],
-  );
 
   const getList = useCallback(
     (keyword?: string) => {
@@ -63,6 +70,11 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
             ...searchParams,
             [searchPropName || labelPropName]: keyword,
           });
+          currentRef.current.forEach((selected) => {
+            if (!records.find((record) => record.id === selected.id)) {
+              records.push(selected);
+            }
+          });
         } else {
           records = await crudy.all({
             ...searchParams,
@@ -70,14 +82,8 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
           });
         }
 
-        currentRef.current.forEach((selected) => {
-          if (!records.find((record) => record.id === selected.id)) {
-            records.push(selected);
-          }
-        });
-
         onLoaded?.(records);
-        formatOptions(records);
+        setRecords(buildLV(records, labelPropName, valuePropName));
       }).then();
     },
     [
@@ -85,19 +91,25 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
       pageSize,
       currentRef,
       onLoaded,
-      formatOptions,
+      buildLV,
+      labelPropName,
+      valuePropName,
       crudy,
       searchParams,
       searchPropName,
-      labelPropName,
     ],
   );
 
   useEffect(() => {
-    if (!value || (value instanceof Array && value.length === 0)) {
+    if (
+      pageSize === 0 ||
+      !value ||
+      (value instanceof Array && value.length === 0)
+    ) {
       setCurrent([]);
       return;
     }
+
     execute(async () => {
       const ids = [];
       if (value instanceof Array) {
@@ -117,7 +129,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
             ],
       );
     }).then();
-  }, [crudy, execute, setCurrent, value]);
+  }, [crudy, execute, pageSize, setCurrent, value]);
 
   useEffect(() => {
     getList();
@@ -128,7 +140,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
     const handleChanged: EEEventListener<"changed", T[] | undefined> = (e) => {
       if (e.value) {
-        formatOptions(e.value);
+        setRecords(buildLV(e.value, labelPropName, valuePropName));
       } else {
         getList();
       }
@@ -138,7 +150,19 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
     return () => {
       emitter.removeEventListener("changed", handleChanged);
     };
-  }, [emitter, formatOptions, getList]);
+  }, [buildLV, emitter, getList, labelPropName, valuePropName]);
+
+  const searchTimerRef = useRef<number>(-1);
+
+  const handleSearch = useCallback(
+    (keywords: string) => {
+      clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(() => {
+        getList(keywords);
+      }, searchDelay) as unknown as number;
+    },
+    [getList, searchDelay],
+  );
 
   return (
     <Spin spinning={loading}>
@@ -146,7 +170,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
         <Select
           {...props}
           value={value}
-          onSearch={getList}
+          onSearch={handleSearch}
           filterOption={false}
           showSearch
           options={records}

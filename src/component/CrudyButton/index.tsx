@@ -56,6 +56,7 @@ export default function CrudyButton<
         width={1200}
         footer={null}
         onCancel={closeTable}
+        zIndex={1001}
       >
         <CrudyTable<T, SP> name={name} emitter={emitter} {...props} />
       </UpperModal>
