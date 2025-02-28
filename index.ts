@@ -28,6 +28,11 @@ export {
 export { default as CrudyEventEmitter } from "./src/component/CrudyTable/eventemitter.ts";
 
 export {
+  default as Ellipsis,
+  type IEllipsisProps,
+} from "./src/component/Ellipsis";
+
+export {
   default as TableSearchDropdown,
   searchable,
   type ITableSearchDropdownProps,
