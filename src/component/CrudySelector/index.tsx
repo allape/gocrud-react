@@ -173,6 +173,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
           onSearch={handleSearch}
           filterOption={false}
           showSearch
+          autoClearSearchValue
           options={records}
         />
         {children}
