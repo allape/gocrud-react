@@ -19,8 +19,8 @@ export interface IEllipsisProps {
 export default function Ellipsis({
   length = 25,
   seekAt = "start",
-  ellipsis,
-  placeholder,
+  ellipsis = "...",
+  placeholder = "-",
   children,
   labelClassname,
   labelStyle,
