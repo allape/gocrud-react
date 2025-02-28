@@ -369,10 +369,16 @@ export default function CrudyTable<
     setPagination({
       ...DefaultPagination,
       ...paginationFromProps,
+      showTotal: (total, range) =>
+        t("gocrud.totalRender", {
+          from: range[0],
+          to: range[1],
+          total,
+        }),
     });
 
     getList().then();
-  }, [getList, paginationFromProps, setPagination]);
+  }, [getList, paginationFromProps, setPagination, t]);
 
   return (
     <>

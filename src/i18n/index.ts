@@ -19,6 +19,7 @@ const Default = {
     actions: "Actions",
     viewer: "Viewer",
     clickToReview: "Click to review",
+    totalRender: "{{from}}-{{to}} of {{total}}",
   },
 };
 
@@ -44,6 +45,7 @@ export const ZHCN: typeof Default = {
     actions: "操作",
     viewer: "查看器",
     clickToReview: "点击查看详情",
+    totalRender: "{{from}}-{{to}} 共 {{total}}",
   },
 };
 
