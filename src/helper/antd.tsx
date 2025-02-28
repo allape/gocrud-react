@@ -21,6 +21,10 @@ export interface ILV<VALUE extends LV["value"]> extends LV {
   value: VALUE;
 }
 
+export interface IColoredLV<VALUE extends LV["value"]> extends ILV<VALUE> {
+  color?: string;
+}
+
 export function AntdEllipsisCell(
   length: number = 25,
   seekAt: "start" | "end" = "start",
