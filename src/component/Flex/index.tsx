@@ -2,7 +2,7 @@ import cls from "classnames";
 import React, { CSSProperties, PropsWithChildren } from "react";
 import styles from "./style.module.scss";
 
-export interface ICenterCenterProps
+export interface IFlexProps
   extends Pick<
     CSSProperties,
     "alignItems" | "justifyContent" | "gap" | "flexDirection" | "flexWrap"
@@ -18,7 +18,7 @@ export default function Flex({
   gap = "10px",
   flexDirection,
   flexWrap,
-}: PropsWithChildren<ICenterCenterProps>): React.ReactElement {
+}: PropsWithChildren<IFlexProps>): React.ReactElement {
   return (
     <div
       className={cls(styles.wrapper, className)}

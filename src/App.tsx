@@ -4,8 +4,8 @@ import { Button, Card, Form, Input, InputNumber, Modal } from "antd";
 import { ReactElement, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ThemeProvider from "./component/ThemeProvider";
-import { FormLayoutProps } from "./config/antd.ts";
-import { asDefaultPattern } from './helper/datetime.ts';
+import { AntdFormLayoutProps } from "./helper/antd.tsx";
+import { asDefaultPattern } from "./helper/datetime.ts";
 import styles from "./style.module.scss";
 
 export default function App(): ReactElement {
@@ -57,7 +57,7 @@ export default function App(): ReactElement {
         onOk={handleOk}
         okButtonProps={{ loading }}
       >
-        <Form {...FormLayoutProps} form={form}>
+        <Form {...AntdFormLayoutProps} form={form}>
           <Form.Item name="name" label="Name">
             <Input placeholder="name" allowClear />
           </Form.Item>

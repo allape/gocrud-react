@@ -1,9 +1,11 @@
-import { i18n } from "@allape/gocrud";
-import { SelectProps, TableProps, Tooltip } from "antd";
-import type { FormInstance } from "rc-field-form/es/interface";
-import React from "react";
-import ClickToReview from "../component/ClickToReview";
-import Default from "../i18n";
+/* eslint-disable react-refresh/only-export-components */
+
+import { i18n } from '@allape/gocrud';
+import { FormProps, SelectProps, TableProps, Tooltip } from 'antd';
+import type { FormInstance } from 'rc-field-form/es/interface';
+import React from 'react';
+import ClickToReview from '../component/ClickToReview';
+import Default from '../i18n';
 
 export type RecursivePartial<T> = Parameters<
   FormInstance<T>["setFieldsValue"]
@@ -19,7 +21,7 @@ export interface ILV<VALUE extends LV["value"]> extends LV {
   value: VALUE;
 }
 
-export function EllipsisCell(
+export function AntdEllipsisCell(
   length: number = 25,
   seekAt: "start" | "end" = "start",
   ellipsis: string = "...",
@@ -65,3 +67,8 @@ export function EllipsisCell(
     );
   };
 }
+
+export const AntdFormLayoutProps: Pick<FormProps, "labelCol" | "wrapperCol"> = {
+  labelCol: { span: 24 },
+  wrapperCol: { span: 24 },
+};
