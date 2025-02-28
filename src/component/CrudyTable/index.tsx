@@ -16,6 +16,7 @@ import {
   TableColumnsType,
   TableProps,
 } from "antd";
+import { t } from "i18next";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.ts";
@@ -41,7 +42,12 @@ const DefaultPagination: ModifiedPagination = {
   showSizeChanger: true,
   showQuickJumper: true,
   pageSizeOptions: ["10", "20", "50", "100"],
-  showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
+  showTotal: (total, range) =>
+    t("gocrud.totalRender", {
+      from: range[0],
+      to: range[1],
+      total,
+    }),
 };
 
 export type FalseToStop = false | boolean | void;
@@ -369,12 +375,6 @@ export default function CrudyTable<
     setPagination({
       ...DefaultPagination,
       ...paginationFromProps,
-      showTotal: (total, range) =>
-        t("gocrud.totalRender", {
-          from: range[0],
-          to: range[1],
-          total,
-        }),
     });
 
     getList().then();
