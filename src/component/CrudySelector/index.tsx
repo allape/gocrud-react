@@ -154,6 +154,12 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   const searchTimerRef = useRef<number>(-1);
 
+  useEffect(() => {
+    return () => {
+      clearTimeout(searchTimerRef.current);
+    };
+  }, []);
+
   const handleSearch = useCallback(
     (keywords: string) => {
       clearTimeout(searchTimerRef.current);
