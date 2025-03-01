@@ -53,7 +53,10 @@ export default function CrudyButton<
       </Button>
       <UpperModal
         open={tableVisible}
-        width={1200}
+        width={{
+          md: "90%",
+          lg: "80%",
+        }}
         footer={null}
         onCancel={closeTable}
         zIndex={1001}
