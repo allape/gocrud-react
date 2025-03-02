@@ -15,7 +15,7 @@ import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 
 export type Millisecond = number;
 
-export function BuildLV<T, V extends string | number>(
+export function BuildOptions<T, V extends string | number>(
   records: T[],
   labelPropName: keyof T | string,
   valuePropName: keyof T | string,
@@ -28,7 +28,7 @@ export function BuildLV<T, V extends string | number>(
 
 export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   extends Omit<SelectProps, "children"> {
-  buildLV?: typeof BuildLV<T, IBase["id"]>;
+  buildOptions?: typeof BuildOptions<T, IBase["id"]>;
   crudy: Crudy<T>;
   pageSize?: number;
   labelPropName?: keyof T | string;
@@ -38,10 +38,11 @@ export interface ICrudySelectorProps<T, KEYWORDS = unknown>
   emitter?: EventEmitter<"changed", T[] | undefined>;
   onLoaded?: (records: T[]) => void;
   searchDelay?: Millisecond;
+  inKeyword?: string;
 }
 
 export default function CrudySelector<T extends IBase, KW = unknown>({
-  buildLV = BuildLV,
+  buildOptions: buildOptionsFromProps,
   value,
   crudy,
   pageSize = 0,
@@ -52,6 +53,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
   searchDelay = 200,
   emitter,
   onLoaded,
+  inKeyword,
   children,
   ...props
 }: PropsWithChildren<ICrudySelectorProps<T, KW>>): React.ReactElement {
@@ -59,6 +61,17 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   const [, currentRef, setCurrent] = useProxy<T[]>([]);
   const [records, setRecords] = useState<DefaultOptionType[]>([]);
+
+  const buildOptions = useCallback(
+    (records: T[]) => {
+      return (buildOptionsFromProps || BuildOptions)(
+        records,
+        labelPropName,
+        valuePropName,
+      );
+    },
+    [buildOptionsFromProps, labelPropName, valuePropName],
+  );
 
   const getList = useCallback(
     (keyword?: string) => {
@@ -83,7 +96,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
         }
 
         onLoaded?.(records);
-        setRecords(buildLV(records, labelPropName, valuePropName));
+        setRecords(buildOptions(records));
       }).then();
     },
     [
@@ -91,9 +104,8 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
       pageSize,
       currentRef,
       onLoaded,
-      buildLV,
+      buildOptions,
       labelPropName,
-      valuePropName,
       crudy,
       searchParams,
       searchPropName,
@@ -118,18 +130,28 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
         ids.push(value);
       }
 
-      const users = await Promise.all(ids.map((id) => crudy.one(id)));
-      setCurrent(users);
-      setRecords((old) =>
-        users.length === 0
-          ? old
-          : [
-              ...old,
-              ...users.filter((i) => !old.find((j) => j.value === i.id)),
-            ],
-      );
+      let records: T[] = [];
+
+      if (inKeyword) {
+        records = await crudy.all({
+          [inKeyword]: ids,
+        });
+      } else {
+        records = await Promise.all(ids.map((id) => crudy.one(id)));
+      }
+
+      setCurrent(records);
+
+      if (records.length !== 0) {
+        setRecords((old) => [
+          ...old,
+          ...buildOptions(
+            records.filter((i) => !old.find((j) => j.value === i.id)),
+          ),
+        ]);
+      }
     }).then();
-  }, [crudy, execute, pageSize, setCurrent, value]);
+  }, [buildOptions, crudy, execute, inKeyword, pageSize, setCurrent, value]);
 
   useEffect(() => {
     getList();
@@ -140,7 +162,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
     const handleChanged: EEEventListener<"changed", T[] | undefined> = (e) => {
       if (e.value) {
-        setRecords(buildLV(e.value, labelPropName, valuePropName));
+        setRecords(buildOptions(e.value));
       } else {
         getList();
       }
@@ -150,7 +172,7 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
     return () => {
       emitter.removeEventListener("changed", handleChanged);
     };
-  }, [buildLV, emitter, getList, labelPropName, valuePropName]);
+  }, [buildOptions, emitter, getList]);
 
   const searchTimerRef = useRef<number>(-1);
 
