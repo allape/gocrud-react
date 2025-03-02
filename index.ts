@@ -62,6 +62,7 @@ export {
 export { default as CrudyModal } from "./src/component/CrudyModal";
 
 export { default as useColorScheme } from "./src/hook/useColorScheme";
+export { default as useMobile } from "./src/hook/useMobile";
 
 export * as config from "./src/config";
 
