@@ -5,6 +5,7 @@ import {
   AppstoreAddOutlined,
   DeleteOutlined,
   EditOutlined,
+  LoadingOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import {
@@ -411,10 +412,10 @@ export default function CrudyTable<
             {reloadable && (
               <Button
                 title={`${i18n.ot("gocrud.reload", Default.gocrud.reload, t)}`}
-                loading={loading}
+                disabled={loading}
                 onClick={getList}
               >
-                <ReloadOutlined />
+                {loading ? <LoadingOutlined /> : <ReloadOutlined />}
               </Button>
             )}
             {titleExtra}

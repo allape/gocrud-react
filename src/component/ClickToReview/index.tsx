@@ -25,7 +25,7 @@ export default function ClickToReview({
             content: content,
             width: "calc(100vw - 20px)",
             maskClosable: true,
-            style: { top: "10px", cursor: "pointer" },
+            style: { top: "10px" },
             okText,
           })
         }
