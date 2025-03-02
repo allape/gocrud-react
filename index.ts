@@ -20,6 +20,11 @@ export {
   default as CrudySelector,
   type ICrudySelectorProps,
 } from "./src/component/CrudySelector";
+export {
+  default as PagedCrudySelector,
+  type IPagedCrudySelectorProps,
+} from "./src/component/CrudySelector/PagedCrudySelector.tsx";
+export * as CrudySelectorProps from "./src/component/CrudySelector/selector.ts";
 
 export {
   default as CrudyTable,

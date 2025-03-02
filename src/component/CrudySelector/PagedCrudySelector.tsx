@@ -18,7 +18,7 @@ import {
   useOptionsBuildFunc,
 } from "./selector.ts";
 
-export interface ICrudySelectorProps<
+export interface IPagedCrudySelectorProps<
   T extends IBase,
   KEYWORDS extends object = object,
 > extends ICrudySelectorBaseProps<T, KEYWORDS> {
@@ -32,7 +32,7 @@ export default function PagedCrudySelector<
   T extends IBase = IBase,
   KEYWORDS extends object = object,
 >(
-  props: PropsWithChildren<ICrudySelectorProps<T, KEYWORDS>>,
+  props: PropsWithChildren<IPagedCrudySelectorProps<T, KEYWORDS>>,
 ): React.ReactElement {
   const {
     value,
