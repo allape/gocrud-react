@@ -2,6 +2,12 @@ import { i18n, IBase } from "@allape/gocrud";
 import { useLoading, useProxy, useToggle } from "@allape/use-loading";
 import { UseLoadingReturn } from "@allape/use-loading/lib/hook/useLoading";
 import {
+  AppstoreAddOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import {
   Button,
   ButtonProps,
   Card,
@@ -306,11 +312,11 @@ export default function CrudyTable<
           <Space wrap>
             {editable && (
               <Button
-                size="small"
+                title={i18n.ot("gocrud.edit", Default.gocrud.edit, t)}
                 type="link"
                 onClick={() => handleEdit(record)}
               >
-                {i18n.ot("gocrud.edit", Default.gocrud.edit, t)}
+                <EditOutlined />
               </Button>
             )}
             {deletable && (
@@ -322,9 +328,13 @@ export default function CrudyTable<
                 )}
                 onConfirm={() => handleDelete(record)}
               >
-                <Button size="small" type="link" danger {...deleteButtonProps}>
-                  {deleteButtonProps?.children ||
-                    i18n.ot("gocrud.delete", Default.gocrud.delete, t)}
+                <Button
+                  title={i18n.ot("gocrud.delete", Default.gocrud.delete, t)}
+                  type="link"
+                  danger
+                  {...deleteButtonProps}
+                >
+                  {deleteButtonProps?.children || <DeleteOutlined />}
                 </Button>
               </Popconfirm>
             )}
@@ -390,13 +400,21 @@ export default function CrudyTable<
               {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
             </span>
             {creatable && (
-              <Button type="primary" onClick={handleAdd}>
-                {i18n.ot("gocrud.add", Default.gocrud.add, t)} {name}
+              <Button
+                title={`${i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
+                type="primary"
+                onClick={handleAdd}
+              >
+                <AppstoreAddOutlined />
               </Button>
             )}
             {reloadable && (
-              <Button loading={loading} onClick={getList}>
-                {i18n.ot("gocrud.reload", Default.gocrud.reload, t)}
+              <Button
+                title={`${i18n.ot("gocrud.reload", Default.gocrud.reload, t)}`}
+                loading={loading}
+                onClick={getList}
+              >
+                <ReloadOutlined />
               </Button>
             )}
             {titleExtra}
