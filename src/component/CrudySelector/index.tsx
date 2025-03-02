@@ -172,8 +172,12 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   return (
     <Spin spinning={loading}>
-      {children}
-      <Divider style={{ margin: "10px 0" }} />
+      {children ? (
+        <>
+          {children}
+          <Divider style={{ margin: "10px 0" }} />
+        </>
+      ) : undefined}
       <Select
         {...props}
         value={value}
