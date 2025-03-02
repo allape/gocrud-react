@@ -23,16 +23,19 @@ import {
   TableColumnsType,
   TableProps,
 } from "antd";
+import cls from "classnames";
 import { t } from "i18next";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
+import { Size, useSize } from "../../hook/useMobile.ts";
 import Default from "../../i18n";
+import CrudyModal from "../CrudyModal";
 import Flex from "../Flex";
-import UpperModal from "../UpperModal";
 import CrudyEventEmitter from "./eventemitter.ts";
+import styles from "./style.module.scss";
 
 type ModifiedPagination = Omit<Pagination, "current" | "pageSize"> &
   Required<Pick<Pagination, "current" | "pageSize">>;
@@ -96,7 +99,9 @@ export interface ITable<T extends IBase> {
   actions?: (
     record: T,
     execute: UseLoadingReturn["execute"],
+    size?: Size,
   ) => React.ReactNode;
+  noFixedActionColumn?: boolean;
   deleteButtonProps?: ButtonProps;
 }
 
@@ -118,6 +123,7 @@ export interface ICrudyTableProps<
   className?: string;
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T>;
+  mobileMaxWidth?: number;
 }
 
 export default function CrudyTable<
@@ -135,11 +141,13 @@ export default function CrudyTable<
   className,
   searchParams,
   emitter,
+  mobileMaxWidth,
 
   scroll,
   columns,
   pagination: paginationFromProps,
   actions,
+  noFixedActionColumn,
   deleteButtonProps,
 
   children,
@@ -161,8 +169,21 @@ export default function CrudyTable<
 
   const { loading, execute } = useLoading();
 
+  const defaultPagination = useMemo<ModifiedPagination>(
+    () => ({
+      ...DefaultPagination,
+      ...paginationFromProps,
+      className: cls(
+        styles.pagination,
+        DefaultPagination?.className,
+        paginationFromProps?.className,
+      ),
+    }),
+    [paginationFromProps],
+  );
+
   const [pagination, paginationRef, setPagination] =
-    useProxy<ModifiedPagination>({} as ModifiedPagination);
+    useProxy<ModifiedPagination>(defaultPagination);
   const [list, , setList] = useProxy<T[]>([]);
   const [formVisible, openForm, closeForm] = useToggle(false);
 
@@ -197,8 +218,7 @@ export default function CrudyTable<
       const newRecords = await afterListed?.(records);
       setList(newRecords || records);
       setPagination((prev) => ({
-        ...DefaultPagination,
-        ...paginationFromProps,
+        ...defaultPagination,
         ...prev,
         total,
       }));
@@ -206,9 +226,9 @@ export default function CrudyTable<
   }, [
     afterListed,
     crudy,
+    defaultPagination,
     execute,
     pageable,
-    paginationFromProps,
     paginationRef,
     searchParams,
     setList,
@@ -301,19 +321,25 @@ export default function CrudyTable<
     }).then();
   }, [beforeEdit, defaultFormValue, execute, form, openForm]);
 
+  const size = useSize(mobileMaxWidth);
+
   const columnsWithActions = useMemo<TableColumnsType<T>>(
     () => [
       ...columns,
       {
-        title: i18n.ot("gocrud.actions", Default.gocrud.actions, t),
+        title: (
+          <div className={styles.actionColName}>
+            {i18n.ot("gocrud.actions", Default.gocrud.actions, t)}
+          </div>
+        ),
         key: "actions",
-        fixed: "right",
-        width: 200,
+        fixed: noFixedActionColumn ? undefined : "right",
         render: (_, record) => (
           <Space wrap>
             {editable && (
               <Button
                 title={i18n.ot("gocrud.edit", Default.gocrud.edit, t)}
+                size={size}
                 type="link"
                 onClick={() => handleEdit(record)}
               >
@@ -331,6 +357,7 @@ export default function CrudyTable<
               >
                 <Button
                   title={i18n.ot("gocrud.delete", Default.gocrud.delete, t)}
+                  size={size}
                   type="link"
                   danger
                   {...deleteButtonProps}
@@ -339,7 +366,7 @@ export default function CrudyTable<
                 </Button>
               </Popconfirm>
             )}
-            {actions?.(record, execute)}
+            {actions?.(record, execute, size)}
           </Space>
         ),
       },
@@ -353,6 +380,8 @@ export default function CrudyTable<
       execute,
       handleDelete,
       handleEdit,
+      noFixedActionColumn,
+      size,
       t,
     ],
   );
@@ -383,18 +412,18 @@ export default function CrudyTable<
   }, [emitter, form, getList, openForm]);
 
   useEffect(() => {
-    setPagination({
-      ...DefaultPagination,
-      ...paginationFromProps,
-    });
-
     getList().then();
-  }, [getList, paginationFromProps, setPagination, t]);
+  }, [getList]);
 
   return (
     <>
       <Card
-        className={className}
+        className={cls(styles.wrapper, className)}
+        styles={{
+          body: {
+            padding: "0",
+          },
+        }}
         title={
           <Flex justifyContent="flex-start">
             <span>
@@ -424,6 +453,7 @@ export default function CrudyTable<
         extra={extra}
       >
         <Table<T>
+          className={styles.table}
           loading={loading}
           columns={columnsWithActions}
           rowKey="id"
@@ -431,9 +461,10 @@ export default function CrudyTable<
           pagination={pageable ? pagination : false}
           onChange={handleChange}
           scroll={scroll || { x: true }}
+          size={size}
         />
       </Card>
-      <UpperModal
+      <CrudyModal
         open={formVisible}
         width={800}
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
@@ -453,7 +484,7 @@ export default function CrudyTable<
           </Form.Item>
           {typeof children === "function" ? children(editingRecord) : children}
         </Form>
-      </UpperModal>
+      </CrudyModal>
     </>
   );
 }

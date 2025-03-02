@@ -19,6 +19,7 @@ export default function ClickToReview({
   return (
     <Tooltip title={tooltip}>
       <span
+        style={{ cursor: "pointer" }}
         onClick={() =>
           (app?.modal || Modal).info({
             title: title,

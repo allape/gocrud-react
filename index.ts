@@ -54,7 +54,7 @@ export {
   type IUploaderProps,
 } from "./src/component/Uploader";
 
-export { default as UpperModal } from "./src/component/UpperModal";
+export { default as CrudyModal } from "./src/component/CrudyModal";
 
 export { default as useColorScheme } from "./src/hook/useColorScheme";
 

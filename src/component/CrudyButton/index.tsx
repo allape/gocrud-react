@@ -4,8 +4,8 @@ import { Button, ButtonProps } from "antd";
 import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Default from "../../i18n";
+import CrudyModal from "../CrudyModal";
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
-import UpperModal from "../UpperModal";
 import NewCrudyButtonEventEmitter, {
   CrudyButtonEventEmitter,
 } from "./eventemitter.ts";
@@ -51,7 +51,7 @@ export default function CrudyButton<
       <Button {...buttonProps} onClick={openTable}>
         {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
       </Button>
-      <UpperModal
+      <CrudyModal
         open={tableVisible}
         width={{
           md: "90%",
@@ -62,7 +62,7 @@ export default function CrudyButton<
         zIndex={1001}
       >
         <CrudyTable<T, SP> name={name} emitter={emitter} {...props} />
-      </UpperModal>
+      </CrudyModal>
     </>
   );
 }

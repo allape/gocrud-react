@@ -1,6 +1,6 @@
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading, useProxy } from "@allape/use-loading";
-import { Select, SelectProps, Space, Spin } from "antd";
+import { Divider, Select, SelectProps, Spin } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
 import React, {
   PropsWithChildren,
@@ -172,18 +172,17 @@ export default function CrudySelector<T extends IBase, KW = unknown>({
 
   return (
     <Spin spinning={loading}>
-      <Space.Compact>
-        <Select
-          {...props}
-          value={value}
-          onSearch={handleSearch}
-          filterOption={false}
-          showSearch
-          autoClearSearchValue
-          options={records}
-        />
-        {children}
-      </Space.Compact>
+      {children}
+      <Divider style={{ margin: "10px 0" }} />
+      <Select
+        {...props}
+        value={value}
+        onSearch={handleSearch}
+        filterOption={false}
+        showSearch
+        autoClearSearchValue
+        options={records}
+      />
     </Spin>
   );
 }
