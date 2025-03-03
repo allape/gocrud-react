@@ -96,12 +96,12 @@ export interface ITable<T extends IBase> {
   scroll?: TableProps["scroll"];
   columns: TableColumnsType<T>;
   pagination?: Pagination;
-  actions?: (
-    record: T,
-    execute: UseLoadingReturn["execute"],
-    size?: Size,
-  ) => React.ReactNode;
-  noFixedActionColumn?: boolean;
+  actions?: (options: {
+    record: T;
+    execute: UseLoadingReturn["execute"];
+    size?: Size;
+  }) => React.ReactNode;
+  actionColumnProps?: TableColumnsType<T>[number];
   deleteButtonProps?: ButtonProps;
 }
 
@@ -147,7 +147,7 @@ export default function CrudyTable<
   columns,
   pagination: paginationFromProps,
   actions,
-  noFixedActionColumn,
+  actionColumnProps,
   deleteButtonProps,
 
   children,
@@ -327,13 +327,9 @@ export default function CrudyTable<
     () => [
       ...columns,
       {
-        title: (
-          <div className={styles.actionColName}>
-            {i18n.ot("gocrud.actions", Default.gocrud.actions, t)}
-          </div>
-        ),
+        title: i18n.ot("gocrud.actions", Default.gocrud.actions, t),
         key: "actions",
-        fixed: noFixedActionColumn ? undefined : "right",
+        ...actionColumnProps,
         render: (_, record) => (
           <Space wrap>
             {editable && (
@@ -366,7 +362,7 @@ export default function CrudyTable<
                 </Button>
               </Popconfirm>
             )}
-            {actions?.(record, execute, size)}
+            {actions?.({ record, execute, size })}
           </Space>
         ),
       },
@@ -380,7 +376,7 @@ export default function CrudyTable<
       execute,
       handleDelete,
       handleEdit,
-      noFixedActionColumn,
+      actionColumnProps,
       size,
       t,
     ],
