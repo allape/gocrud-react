@@ -329,6 +329,8 @@ export default function CrudyTable<
       {
         title: i18n.ot("gocrud.actions", Default.gocrud.actions, t),
         key: "actions",
+        align: "center",
+        fixed: "right",
         ...actionColumnProps,
         render: (_, record) => (
           <Space wrap>
