@@ -35,7 +35,7 @@ export interface ICrudySelectorBaseProps<
   valuePropName?: keyof T | string;
   searchParams?: KEYWORDS;
   emitter?: EventEmitter<"changed", T[] | undefined>;
-  onLoaded?: (records: DefaultOptionType[]) => void;
+  onLoaded?: (records: T[]) => void;
 }
 
 export function useOptionsBuildFunc<
