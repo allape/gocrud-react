@@ -1,6 +1,6 @@
 import { i18n, IBase } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
-import { Button, ButtonProps } from "antd";
+import { Button, ButtonProps, ModalProps } from "antd";
 import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Default from "../../i18n";
@@ -16,6 +16,7 @@ export interface ICrudyButtonProps<
 > extends ICrudyTableProps<T, SP> {
   emitter?: CrudyButtonEventEmitter<T>;
   buttonProps?: Omit<ButtonProps, "onClick" | "children">;
+  modalProps?: ModalProps;
 }
 
 export default function CrudyButton<
@@ -25,6 +26,7 @@ export default function CrudyButton<
   name,
   emitter = NewCrudyButtonEventEmitter<T>(),
   buttonProps,
+  modalProps,
   ...props
 }: ICrudyButtonProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
@@ -60,6 +62,7 @@ export default function CrudyButton<
         footer={null}
         onCancel={closeTable}
         zIndex={1001}
+        {...modalProps}
       >
         <CrudyTable<T, SP> name={name} emitter={emitter} {...props} />
       </CrudyModal>
