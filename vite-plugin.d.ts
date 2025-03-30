@@ -7,3 +7,5 @@ export interface IGoCrudVitePluginOptions {
 export default function GoCrudVitePlugin(
   options?: IGoCrudVitePluginOptions,
 ): Plugin;
+
+export function i18nextPlugin(): Plugin;

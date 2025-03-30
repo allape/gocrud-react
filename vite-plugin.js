@@ -25,3 +25,23 @@ export default function GoCrudVitePlugin(
     },
   };
 }
+
+/**
+ * Use single instance of i18next and react-i18next across the app
+ * @returns {import('vite').Plugin}
+ */
+export function i18nextPlugin() {
+  return {
+    config: () => {
+      return {
+        optimizeDeps: {
+          include: ["i18next", "react-i18next"],
+        },
+        resolve: {
+          dedupe: ["i18next", "react-i18next"],
+        },
+      };
+    },
+    name: "I18Next Plugin",
+  };
+}
