@@ -72,3 +72,5 @@ export async function setup(
     },
   });
 }
+
+export const i18n = i18next;
