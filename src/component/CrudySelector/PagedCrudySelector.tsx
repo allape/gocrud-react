@@ -130,6 +130,8 @@ export default function PagedCrudySelector<
 
       currentRef.current = [...exists, ...records];
 
+      onLoaded?.(currentRef.current);
+
       setOptions((old) => [
         ...old,
         ...buildOptions(
@@ -137,7 +139,7 @@ export default function PagedCrudySelector<
         ),
       ]);
     }).then();
-  }, [buildOptions, crudy, execute, inKeyword, pageSize, value]);
+  }, [buildOptions, crudy, execute, inKeyword, onLoaded, pageSize, value]);
 
   useEmitter(buildOptions, emitter, setOptions, getList);
 
