@@ -112,10 +112,26 @@ export default class EventEmitter<
 
   removeAllListeners(event?: NAME): void {
     if (event) {
-      this._listeners[event]?.forEach((listener) => this.removeEventListener(event, listener));
+      this._listeners[event]?.forEach((listener) =>
+        this.removeEventListener(event, listener),
+      );
       this._listeners[event] = [];
     } else {
-      Object.keys(this._listeners).forEach((e) => e && this.removeAllListeners(e as NAME));
+      Object.keys(this._listeners).forEach(
+        (e) => e && this.removeAllListeners(e as NAME),
+      );
     }
+  }
+
+  once(
+    event: NAME,
+    listener: EEEventListener<NAME, PAYLOAD>,
+    options?: AddEventListenerOptions | boolean,
+  ): void {
+    const onceListener = (e: EEEvent<NAME, PAYLOAD>) => {
+      this.removeEventListener(event, onceListener);
+      listener(e);
+    };
+    this.addEventListener(event, onceListener, options);
   }
 }

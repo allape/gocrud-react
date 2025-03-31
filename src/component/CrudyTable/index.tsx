@@ -185,7 +185,15 @@ export default function CrudyTable<
   const [pagination, paginationRef, setPagination] =
     useProxy<ModifiedPagination>(defaultPagination);
   const [list, , setList] = useProxy<T[]>([]);
-  const [formVisible, openForm, closeForm] = useToggle(false);
+  const [formVisible, openForm, _closeForm] = useToggle(false);
+
+  const closeForm = useCallback(
+    (record?: T) => {
+      emitter?.dispatchEvent("save-form-closed", record);
+      _closeForm();
+    },
+    [_closeForm, emitter],
+  );
 
   const [form] = Form.useForm<T>();
   const [editingRecord, setEditingRecord] = useState<Partial<T> | undefined>();
@@ -266,7 +274,7 @@ export default function CrudyTable<
         return;
       }
 
-      closeForm();
+      closeForm(saved);
       await getList();
     });
   }, [
@@ -467,7 +475,7 @@ export default function CrudyTable<
         width={800}
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
         afterClose={handleFormClose}
-        onCancel={closeForm}
+        onCancel={() => closeForm()}
         cancelButtonProps={{ disabled: loading }}
         cancelText={i18n.ot("gocrud.cancel", Default.gocrud.cancel, t)}
         okButtonProps={{ loading }}
