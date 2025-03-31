@@ -5,13 +5,23 @@ import CrudyEventEmitter from "../CrudyTable/eventemitter.ts";
 
 export interface CrudyButtonEventEmitter<T extends IBase>
   extends CrudyEventEmitter<T> {
+  dispatchEvent(event: string, data?: unknown): void;
+
   dispatchEvent(event: "reload"): void;
 
   dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
 
+  dispatchEvent(event: "save-form-closed", record?: T): void;
+
   dispatchEvent(event: "open"): void;
 
   dispatchEvent(event: "close"): void;
+
+  addEventListener(
+    event: string,
+    listener: EEEventListener<never, never>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
 
   addEventListener(
     event: "reload",
@@ -25,6 +35,12 @@ export interface CrudyButtonEventEmitter<T extends IBase>
       "open-save-form",
       RecursivePartial<T> | undefined
     >,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+
+  addEventListener(
+    event: "save-form-closed",
+    listener: EEEventListener<"save-form-closed", T | undefined>,
     options?: AddEventListenerOptions | boolean,
   ): void;
 
@@ -41,6 +57,12 @@ export interface CrudyButtonEventEmitter<T extends IBase>
   ): void;
 
   removeEventListener(
+    event: string,
+    listener: EEEventListener<never, never>,
+    options?: EventListenerOptions | boolean,
+  ): void;
+
+  removeEventListener(
     event: "reload",
     listener: EEEventListener<"reload">,
     options?: EventListenerOptions | boolean,
@@ -52,6 +74,12 @@ export interface CrudyButtonEventEmitter<T extends IBase>
       "open-save-form",
       RecursivePartial<T> | undefined
     >,
+    options?: EventListenerOptions | boolean,
+  ): void;
+
+  removeEventListener(
+    event: "save-form-closed",
+    listener: EEEventListener<"save-form-closed", T | undefined>,
     options?: EventListenerOptions | boolean,
   ): void;
 

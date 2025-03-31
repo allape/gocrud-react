@@ -61,17 +61,4 @@ export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
   ): void {
     super.removeEventListener(event, listener as EventListener, options);
   }
-
-  once(
-    event: "save-form-closed",
-    listener: EEEventListener<"save-form-closed", T | undefined>,
-    options?: EventListenerOptions | boolean,
-  ): void;
-  once(
-    event: string,
-    listener: EEEventListener<never, never>,
-    options?: AddEventListenerOptions | boolean,
-  ): void {
-    super.addEventListener(event, listener as EventListener, options);
-  }
 }
