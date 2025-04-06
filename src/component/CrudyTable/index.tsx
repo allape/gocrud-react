@@ -25,7 +25,13 @@ import {
 } from "antd";
 import cls from "classnames";
 import { t } from "i18next";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
@@ -182,9 +188,7 @@ export default function CrudyTable<
     [paginationFromProps],
   );
 
-  const [searchParams, searchParamsRef, setSearchParams] = useProxy<
-    SP | undefined
-  >(undefined);
+  const searchParamsRef = useRef<SP | undefined>(undefined);
   const [pagination, paginationRef, setPagination] =
     useProxy<ModifiedPagination>(defaultPagination);
   const [list, , setList] = useProxy<T[]>([]);
@@ -214,16 +218,18 @@ export default function CrudyTable<
       let total = 0;
       let records: T[];
 
+      const sp = searchParamsRef.current;
+
       if (pageable) {
         records = await crudy.page<SP>(
           paginationRef.current.current,
           paginationRef.current.pageSize,
-          searchParams,
+          sp,
         );
 
-        total = await crudy.count<SP>(searchParams);
+        total = await crudy.count<SP>(sp);
       } else {
-        records = await crudy.all<SP>(searchParams);
+        records = await crudy.all<SP>(sp);
       }
 
       const newRecords = await afterListed?.(records);
@@ -241,7 +247,6 @@ export default function CrudyTable<
     execute,
     pageable,
     paginationRef,
-    searchParams,
     setList,
     setPagination,
   ]);
@@ -432,17 +437,10 @@ export default function CrudyTable<
         current: 1,
       }));
     }
-    setSearchParams(searchParamsFromProps);
+    searchParamsRef.current = searchParamsFromProps;
 
     getList().then();
-  }, [
-    defaultPagination,
-    getList,
-    searchParamsFromProps,
-    searchParamsRef,
-    setPagination,
-    setSearchParams,
-  ]);
+  }, [getList, searchParamsFromProps, setPagination]);
 
   return (
     <>
