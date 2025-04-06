@@ -139,7 +139,7 @@ export default function CrudyTable<
   name,
   crudy,
   className,
-  searchParams,
+  searchParams: searchParamsFromProps,
   emitter,
   mobileMaxWidth,
 
@@ -167,7 +167,7 @@ export default function CrudyTable<
 }: ICrudyTableProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
 
-  const { loading, execute } = useLoading();
+  const { loading, isLoading, execute } = useLoading();
 
   const defaultPagination = useMemo<ModifiedPagination>(
     () => ({
@@ -182,6 +182,9 @@ export default function CrudyTable<
     [paginationFromProps],
   );
 
+  const [searchParams, searchParamsRef, setSearchParams] = useProxy<
+    SP | undefined
+  >(undefined);
   const [pagination, paginationRef, setPagination] =
     useProxy<ModifiedPagination>(defaultPagination);
   const [list, , setList] = useProxy<T[]>([]);
@@ -257,7 +260,7 @@ export default function CrudyTable<
   }, [form]);
 
   const handleSave = useCallback(async () => {
-    if (!crudy) {
+    if (!crudy || isLoading()) {
       return;
     }
     await execute(async () => {
@@ -285,6 +288,7 @@ export default function CrudyTable<
     execute,
     form,
     getList,
+    isLoading,
     onSave,
   ]);
 
@@ -417,9 +421,28 @@ export default function CrudyTable<
     };
   }, [emitter, form, getList, openForm]);
 
+  // useEffect(() => {
+  //   getList().then();
+  // }, [getList]);
+
   useEffect(() => {
+    if (searchParamsFromProps !== searchParamsRef.current) {
+      setPagination((old) => ({
+        ...old,
+        current: 1,
+      }));
+    }
+    setSearchParams(searchParamsFromProps);
+
     getList().then();
-  }, [getList]);
+  }, [
+    defaultPagination,
+    getList,
+    searchParamsFromProps,
+    searchParamsRef,
+    setPagination,
+    setSearchParams,
+  ]);
 
   return (
     <>
