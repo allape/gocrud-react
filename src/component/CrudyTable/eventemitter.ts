@@ -5,6 +5,7 @@ import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
   dispatchEvent(event: "reload"): void;
   dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
+  dispatchEvent(event: "close-save-form", record?: RecursivePartial<T>): void;
   dispatchEvent(event: "save-form-closed", record?: T): void;
   dispatchEvent(event: string, data?: unknown): void {
     super.dispatchEvent(event, data);
@@ -21,6 +22,11 @@ export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
       "open-save-form",
       RecursivePartial<T> | undefined
     >,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
+  addEventListener(
+    event: "close-save-form",
+    listener: EEEventListener<"close-save-form">,
     options?: AddEventListenerOptions | boolean,
   ): void;
   addEventListener(
@@ -47,6 +53,11 @@ export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
       "open-save-form",
       RecursivePartial<T> | undefined
     >,
+    options?: EventListenerOptions | boolean,
+  ): void;
+  removeEventListener(
+    event: "close-save-form",
+    listener: EEEventListener<"close-save-form">,
     options?: EventListenerOptions | boolean,
   ): void;
   removeEventListener(

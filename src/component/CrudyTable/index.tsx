@@ -420,11 +420,17 @@ export default function CrudyTable<
     };
     emitter.addEventListener("open-save-form", handleOpenSaveForm);
 
+    const handleCloseForm = () => {
+      closeForm(undefined);
+    };
+    emitter.addEventListener("close-save-form", handleCloseForm);
+
     return () => {
       emitter.removeEventListener("reload", getList);
       emitter.removeEventListener("open-save-form", handleOpenSaveForm);
+      emitter.removeEventListener("close-save-form", handleCloseForm);
     };
-  }, [emitter, form, getList, openForm]);
+  }, [closeForm, emitter, form, getList, openForm]);
 
   // useEffect(() => {
   //   getList().then();
@@ -496,7 +502,6 @@ export default function CrudyTable<
         width={800}
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
         afterClose={handleFormClose}
-        onCancel={() => closeForm()}
         cancelButtonProps={{ disabled: loading }}
         cancelText={i18n.ot("gocrud.cancel", Default.gocrud.cancel, t)}
         okButtonProps={{ loading }}
@@ -504,6 +509,10 @@ export default function CrudyTable<
         onOk={handleSave}
         destroyOnClose
         {...saveModalProps}
+        onCancel={(e) => {
+          closeForm();
+          saveModalProps?.onCancel?.(e);
+        }}
       >
         <Form<T> {...FormLayoutProps} form={form}>
           <Form.Item name="id" noStyle hidden>
