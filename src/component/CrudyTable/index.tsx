@@ -507,7 +507,7 @@ export default function CrudyTable<
         okButtonProps={{ loading }}
         okText={i18n.ot("gocrud.save", Default.gocrud.save, t)}
         onOk={handleSave}
-        destroyOnClose
+        destroyOnHidden
         {...saveModalProps}
         onCancel={(e) => {
           closeForm();
