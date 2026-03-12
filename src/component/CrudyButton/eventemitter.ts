@@ -3,32 +3,22 @@ import { RecursivePartial } from "../../helper/antd.tsx";
 import { EEEventListener } from "../../helper/eventemitter.ts";
 import CrudyEventEmitter from "../CrudyTable/eventemitter.ts";
 
-export interface CrudyButtonEventEmitter<T extends IBase>
-  extends CrudyEventEmitter<T> {
+export interface CrudyButtonEventEmitter<
+  T extends IBase,
+> extends CrudyEventEmitter<T> {
+  dispatchEvent(event: "reload"): void;
+  dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
+  dispatchEvent(event: "save-form-opened", record?: T): void;
+  dispatchEvent(event: "save-form-closed", record?: T): void;
+  dispatchEvent(event: "open"): void;
+  dispatchEvent(event: "close"): void;
   dispatchEvent(event: string, data?: unknown): void;
 
-  dispatchEvent(event: "reload"): void;
-
-  dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
-
-  dispatchEvent(event: "save-form-closed", record?: T): void;
-
-  dispatchEvent(event: "open"): void;
-
-  dispatchEvent(event: "close"): void;
-
-  addEventListener(
-    event: string,
-    listener: EEEventListener<never, never>,
-    options?: AddEventListenerOptions | boolean,
-  ): void;
-
   addEventListener(
     event: "reload",
     listener: EEEventListener<"reload">,
     options?: AddEventListenerOptions | boolean,
   ): void;
-
   addEventListener(
     event: "open-save-form",
     listener: EEEventListener<
@@ -37,29 +27,30 @@ export interface CrudyButtonEventEmitter<T extends IBase>
     >,
     options?: AddEventListenerOptions | boolean,
   ): void;
-
+  addEventListener(
+    event: "save-form-opened",
+    listener: EEEventListener<"save-form-opened", T | undefined>,
+    options?: AddEventListenerOptions | boolean,
+  ): void;
   addEventListener(
     event: "save-form-closed",
     listener: EEEventListener<"save-form-closed", T | undefined>,
     options?: AddEventListenerOptions | boolean,
   ): void;
-
   addEventListener(
     event: "open",
     listener: EEEventListener<"open">,
     options?: AddEventListenerOptions | boolean,
   ): void;
-
   addEventListener(
     event: "close",
     listener: EEEventListener<"close">,
     options?: AddEventListenerOptions | boolean,
   ): void;
-
-  removeEventListener(
+  addEventListener(
     event: string,
     listener: EEEventListener<never, never>,
-    options?: EventListenerOptions | boolean,
+    options?: AddEventListenerOptions | boolean,
   ): void;
 
   removeEventListener(
@@ -67,7 +58,6 @@ export interface CrudyButtonEventEmitter<T extends IBase>
     listener: EEEventListener<"reload">,
     options?: EventListenerOptions | boolean,
   ): void;
-
   removeEventListener(
     event: "open-save-form",
     listener: EEEventListener<
@@ -76,22 +66,29 @@ export interface CrudyButtonEventEmitter<T extends IBase>
     >,
     options?: EventListenerOptions | boolean,
   ): void;
-
+  removeEventListener(
+    event: "save-form-opened",
+    listener: EEEventListener<"save-form-opened", T | undefined>,
+    options?: EventListenerOptions | boolean,
+  ): void;
   removeEventListener(
     event: "save-form-closed",
     listener: EEEventListener<"save-form-closed", T | undefined>,
     options?: EventListenerOptions | boolean,
   ): void;
-
   removeEventListener(
     event: "open",
     listener: EEEventListener<"open">,
     options?: EventListenerOptions | boolean,
   ): void;
-
   removeEventListener(
     event: "close",
     listener: EEEventListener<"close">,
+    options?: EventListenerOptions | boolean,
+  ): void;
+  removeEventListener(
+    event: string,
+    listener: EEEventListener<never, never>,
     options?: EventListenerOptions | boolean,
   ): void;
 }

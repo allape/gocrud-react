@@ -119,11 +119,8 @@ export interface ICard {
 export interface ICrudyTableProps<
   T extends IBase = IBase,
   SP extends object = object,
-> extends ISwitch,
-    IForm<T>,
-    IFormEvent<T>,
-    ITable<T>,
-    ICard {
+>
+  extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard {
   name: string;
   crudy?: Crudy<T>;
   className?: string;
@@ -192,7 +189,15 @@ export default function CrudyTable<
   const [pagination, paginationRef, setPagination] =
     useProxy<ModifiedPagination>(defaultPagination);
   const [list, , setList] = useProxy<T[]>([]);
-  const [formVisible, openForm, _closeForm] = useToggle(false);
+  const [formVisible, _openForm, _closeForm] = useToggle(false);
+
+  const openForm = useCallback(
+    (record?: RecursivePartial<T> | Partial<T> | T) => {
+      _openForm();
+      emitter?.dispatchEvent("save-form-opened", record);
+    },
+    [_openForm, emitter],
+  );
 
   const closeForm = useCallback(
     (record?: T) => {
@@ -317,10 +322,10 @@ export default function CrudyTable<
   const handleEdit = useCallback(
     (record: T) => {
       execute(async () => {
-        const newRecord = await beforeEdit?.(record, form);
-        setEditingRecord(newRecord || record);
-        form.setFieldsValue((newRecord || record) as RecursivePartial<T>);
-        openForm();
+        const newRecord = (await beforeEdit?.(record, form)) || record;
+        form.setFieldsValue(newRecord as RecursivePartial<T>);
+        setEditingRecord(newRecord);
+        openForm(newRecord);
       }).then();
     },
     [beforeEdit, execute, form, openForm],
@@ -334,7 +339,7 @@ export default function CrudyTable<
         form.setFieldsValue(newRecord as RecursivePartial<T>);
         setEditingRecord(newRecord);
       }
-      openForm();
+      openForm(newRecord);
     }).then();
   }, [beforeEdit, defaultFormValue, execute, form, openForm]);
 
@@ -416,7 +421,7 @@ export default function CrudyTable<
       } else {
         form.resetFields();
       }
-      openForm();
+      openForm(e.value);
     };
     emitter.addEventListener("open-save-form", handleOpenSaveForm);
 
