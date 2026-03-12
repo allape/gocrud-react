@@ -20,7 +20,12 @@ export async function get<
       return new Promise((resolve, reject) => {
         ((window as AntdAppWindow).antd?.modal || Modal).confirm({
           title: i18n.ot("gocrud.error", Default.gocrud.error),
-          content: `${url}: ${stringify(e)}`,
+          content: (
+            <>
+              <p>{url}</p>
+              <p>{stringify(e)}</p>
+            </>
+          ),
           okText: i18n.ot(
             "gocrud.retryQuestionMark",
             Default.gocrud.retryQuestionMark,

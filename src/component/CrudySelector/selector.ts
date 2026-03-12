@@ -2,7 +2,7 @@ import { IBase } from "@allape/gocrud/src/model.ts";
 import { SelectProps } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
-import Crudy from "../../api/antd.ts";
+import Crudy from "../../api/antd.tsx";
 import { ILV } from "../../helper/antd.tsx";
 import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 

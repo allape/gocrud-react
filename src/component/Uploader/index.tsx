@@ -4,7 +4,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload, UploadFile, UploadProps } from "antd";
 import { RcFile } from "rc-upload/lib/interface";
 import React, { useEffect, useState } from "react";
-import { upload } from "../../api/antd.ts";
+import { upload } from "../../api/antd.tsx";
 
 export interface IUploaderProps
   extends Omit<UploadProps, "onChange" | "fileList"> {

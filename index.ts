@@ -1,10 +1,10 @@
 import "./src/index.scss";
 
-import Crudy from "./src/api/antd.ts";
+import Crudy from "./src/api/antd.tsx";
 
 export default Crudy;
 
-export * from "./src/api/antd.ts";
+export * from "./src/api/antd.tsx";
 
 export {
   default as CrudyButton,

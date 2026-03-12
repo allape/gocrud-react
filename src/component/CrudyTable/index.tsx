@@ -33,7 +33,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import Crudy from "../../api/antd.ts";
+import Crudy from "../../api/antd.tsx";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import { Size, useSize } from "../../hook/useMobile.ts";
