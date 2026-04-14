@@ -1,4 +1,4 @@
-import { i18n, IBase } from "@allape/gocrud";
+import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useLoading, useProxy, useToggle } from "@allape/use-loading";
 import { UseLoadingReturn } from "@allape/use-loading/lib/hook/useLoading";
 import {
@@ -34,6 +34,7 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.tsx";
+import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import { Size, useSize } from "../../hook/useMobile.ts";
@@ -118,20 +119,25 @@ export interface ICard {
 
 export interface ICrudyTableProps<
   T extends IBase = IBase,
-  SP extends object = object,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 >
   extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard {
   name: string;
   crudy?: Crudy<T>;
   className?: string;
   searchParams?: SP;
-  emitter?: CrudyEventEmitter<T>;
+  emitter?: CrudyEventEmitter<T, SP>;
   mobileMaxWidth?: number;
+
+  /**
+   * Delay for `getList` function, for rapid props change
+   */
+  delay?: Millisecond;
 }
 
 export default function CrudyTable<
   T extends IBase = IBase,
-  SP extends object = object,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 >({
   reloadable = true,
   creatable = true,
@@ -145,6 +151,7 @@ export default function CrudyTable<
   searchParams: searchParamsFromProps,
   emitter,
   mobileMaxWidth,
+  delay = 50,
 
   scroll,
   columns,
@@ -171,6 +178,10 @@ export default function CrudyTable<
   const { t } = useTranslation();
 
   const { loading, isLoading, execute } = useLoading();
+
+  const getListDelayerTimerRef = useRef(-1);
+
+  const getListAbortController = useMemo(() => new AbortController(), []);
 
   const defaultPagination = useMemo<ModifiedPagination>(
     () => ({
@@ -219,37 +230,51 @@ export default function CrudyTable<
       return;
     }
 
-    await execute(async () => {
-      let total = 0;
-      let records: T[];
+    clearTimeout(getListDelayerTimerRef.current);
+    // getListAbortController.abort("new request"); // ignore for now, there will be a popup alert when aborted
 
-      const sp = searchParamsRef.current;
+    getListDelayerTimerRef.current = setTimeout(() => {
+      execute(async () => {
+        let total = 0;
+        let records: T[];
 
-      if (pageable) {
-        records = await crudy.page<SP>(
-          paginationRef.current.current,
-          paginationRef.current.pageSize,
-          sp,
-        );
+        const sp = searchParamsRef.current;
 
-        total = await crudy.count<SP>(sp);
-      } else {
-        records = await crudy.all<SP>(sp);
-      }
+        if (pageable) {
+          records = await crudy.page<SP>(
+            paginationRef.current.current,
+            paginationRef.current.pageSize,
+            sp,
+            {
+              signal: getListAbortController.signal,
+            },
+          );
 
-      const newRecords = await afterListed?.(records);
-      setList(newRecords || records);
-      setPagination((prev) => ({
-        ...defaultPagination,
-        ...prev,
-        total,
-      }));
-    });
+          total = await crudy.count<SP>(sp, {
+            signal: getListAbortController.signal,
+          });
+        } else {
+          records = await crudy.all<SP>(sp, {
+            signal: getListAbortController.signal,
+          });
+        }
+
+        const newRecords = await afterListed?.(records);
+        setList(newRecords || records);
+        setPagination((prev) => ({
+          ...defaultPagination,
+          ...prev,
+          total,
+        }));
+      }).then();
+    }, delay) as unknown as number;
   }, [
     afterListed,
     crudy,
     defaultPagination,
+    delay,
     execute,
+    getListAbortController,
     pageable,
     paginationRef,
     setList,
@@ -411,7 +436,16 @@ export default function CrudyTable<
       return undefined;
     }
 
-    emitter.addEventListener("reload", getList);
+    const handleReload = (e: EEEvent<"reload", SP | undefined>) => {
+      searchParamsRef.current = {
+        ...searchParamsRef.current,
+        ...e.value,
+      } as SP;
+
+      getList().then();
+    };
+
+    emitter.addEventListener("reload", handleReload);
 
     const handleOpenSaveForm = (
       e: EEEvent<"open-save-form", RecursivePartial<T> | undefined>,
@@ -431,7 +465,7 @@ export default function CrudyTable<
     emitter.addEventListener("close-save-form", handleCloseForm);
 
     return () => {
-      emitter.removeEventListener("reload", getList);
+      emitter.removeEventListener("reload", handleReload);
       emitter.removeEventListener("open-save-form", handleOpenSaveForm);
       emitter.removeEventListener("close-save-form", handleCloseForm);
     };
@@ -448,10 +482,20 @@ export default function CrudyTable<
         current: 1,
       }));
     }
-    searchParamsRef.current = searchParamsFromProps;
+
+    searchParamsRef.current = {
+      ...searchParamsRef.current,
+      ...searchParamsFromProps,
+    } as SP;
 
     getList().then();
   }, [getList, searchParamsFromProps, setPagination]);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(getListDelayerTimerRef.current);
+    };
+  }, []);
 
   return (
     <>

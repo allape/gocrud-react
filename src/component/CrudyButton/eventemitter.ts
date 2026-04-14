@@ -1,22 +1,23 @@
-import { IBase } from "@allape/gocrud";
+import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { RecursivePartial } from "../../helper/antd.tsx";
 import { EEEventListener } from "../../helper/eventemitter.ts";
 import CrudyEventEmitter from "../CrudyTable/eventemitter.ts";
 
 export interface CrudyButtonEventEmitter<
   T extends IBase,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 > extends CrudyEventEmitter<T> {
-  dispatchEvent(event: "reload"): void;
+  dispatchEvent(event: "reload", searchParams?: SP): void;
   dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
   dispatchEvent(event: "save-form-opened", record?: T): void;
   dispatchEvent(event: "save-form-closed", record?: T): void;
-  dispatchEvent(event: "open"): void;
+  dispatchEvent(event: "open", searchParams?: SP): void;
   dispatchEvent(event: "close"): void;
   dispatchEvent(event: string, data?: unknown): void;
 
   addEventListener(
     event: "reload",
-    listener: EEEventListener<"reload">,
+    listener: EEEventListener<"reload", SP | undefined>,
     options?: AddEventListenerOptions | boolean,
   ): void;
   addEventListener(
@@ -39,7 +40,7 @@ export interface CrudyButtonEventEmitter<
   ): void;
   addEventListener(
     event: "open",
-    listener: EEEventListener<"open">,
+    listener: EEEventListener<"open", SP | undefined>,
     options?: AddEventListenerOptions | boolean,
   ): void;
   addEventListener(
@@ -55,7 +56,7 @@ export interface CrudyButtonEventEmitter<
 
   removeEventListener(
     event: "reload",
-    listener: EEEventListener<"reload">,
+    listener: EEEventListener<"reload", SP | undefined>,
     options?: EventListenerOptions | boolean,
   ): void;
   removeEventListener(
@@ -78,7 +79,7 @@ export interface CrudyButtonEventEmitter<
   ): void;
   removeEventListener(
     event: "open",
-    listener: EEEventListener<"open">,
+    listener: EEEventListener<"open", SP | undefined>,
     options?: EventListenerOptions | boolean,
   ): void;
   removeEventListener(

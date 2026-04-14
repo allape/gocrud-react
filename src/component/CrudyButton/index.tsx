@@ -1,14 +1,17 @@
-import { i18n, IBase } from "@allape/gocrud";
+import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
 import { Button, ButtonProps, ModalProps } from "antd";
 import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { EEEvent } from "../../helper/eventemitter.ts";
 import Default from "../../i18n";
 import CrudyModal from "../CrudyModal";
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
 import NewCrudyButtonEventEmitter, {
   CrudyButtonEventEmitter,
 } from "./eventemitter.ts";
+
+const OpenEvent = new EEEvent("open", undefined);
 
 export interface ICrudyButtonProps<
   T extends IBase = IBase,
@@ -21,7 +24,7 @@ export interface ICrudyButtonProps<
 
 export default function CrudyButton<
   T extends IBase = IBase,
-  SP extends object = object,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 >({
   name,
   emitter = NewCrudyButtonEventEmitter<T>(),
@@ -33,10 +36,13 @@ export default function CrudyButton<
 
   const [tableVisible, openTable_, closeTable] = useToggle(false);
 
-  const openTable = useCallback(() => {
-    emitter.dispatchEvent("reload");
-    openTable_();
-  }, [emitter, openTable_]);
+  const openTable = useCallback(
+    (e: EEEvent<"open", SP | undefined>) => {
+      emitter.dispatchEvent("reload", e?.value);
+      openTable_();
+    },
+    [emitter, openTable_],
+  );
 
   useEffect(() => {
     emitter.addEventListener("open", openTable);
@@ -50,7 +56,7 @@ export default function CrudyButton<
 
   return (
     <>
-      <Button {...buttonProps} onClick={openTable}>
+      <Button {...buttonProps} onClick={() => openTable(OpenEvent)}>
         {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
       </Button>
       <CrudyModal

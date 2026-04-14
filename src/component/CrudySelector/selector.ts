@@ -9,8 +9,6 @@ import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 export const DefaultValueField = "id";
 export const DefaultLabelField = "name";
 
-export type Millisecond = number;
-
 export function BuildOptions<
   T extends IBase = IBase,
   V extends string | number = T["id"],

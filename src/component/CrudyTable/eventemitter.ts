@@ -1,12 +1,18 @@
-import { IBase } from "@allape/gocrud";
+import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { RecursivePartial } from "../../helper/antd.tsx";
 import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 
-export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
-  dispatchEvent(event: "reload"): void;
+export default class CrudyEventEmitter<
+  T extends IBase,
+  SP extends IBaseSearchParams = IBaseSearchParams,
+> extends EventEmitter {
+  dispatchEvent(event: "reload", searchParams?: SP): void;
   dispatchEvent(event: "open-save-form", record?: RecursivePartial<T>): void;
   dispatchEvent(event: "close-save-form", record?: RecursivePartial<T>): void;
-  dispatchEvent(event: "save-form-opened", record?: RecursivePartial<T> | Partial<T> | T): void;
+  dispatchEvent(
+    event: "save-form-opened",
+    record?: RecursivePartial<T> | Partial<T> | T,
+  ): void;
   dispatchEvent(event: "save-form-closed", record?: T): void;
   dispatchEvent(event: string, data?: unknown): void {
     super.dispatchEvent(event, data);
@@ -14,7 +20,7 @@ export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
 
   addEventListener(
     event: "reload",
-    listener: EEEventListener<"reload">,
+    listener: EEEventListener<"reload", SP | undefined>,
     options?: AddEventListenerOptions | boolean,
   ): void;
   addEventListener(
@@ -50,7 +56,7 @@ export default class CrudyEventEmitter<T extends IBase> extends EventEmitter {
 
   removeEventListener(
     event: "reload",
-    listener: EEEventListener<"reload">,
+    listener: EEEventListener<"reload", SP | undefined>,
     options?: EventListenerOptions | boolean,
   ): void;
   removeEventListener(
