@@ -3,6 +3,7 @@ import { useLoading, useToggle } from "@allape/use-loading";
 import { Button, Card, Form, Input, InputNumber, Modal } from "antd";
 import { ReactElement, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import CopyButton from "./component/CopyButton";
 import ThemeProvider from "./component/ThemeProvider";
 import { AntdFormLayoutProps } from "./helper/antd.tsx";
 import { asDefaultPattern } from "./helper/datetime.ts";
@@ -44,6 +45,9 @@ export default function App(): ReactElement {
           <code>{record ? JSON.stringify(record, null, 4) : "----"}</code>
         </pre>
         <div>Now {asDefaultPattern(new Date())}</div>
+        <div>
+          <CopyButton value="Content for CopyButton" />
+        </div>
       </Card>
       <Modal
         open={visible}
