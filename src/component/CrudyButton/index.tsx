@@ -1,7 +1,7 @@
 import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
 import { Button, ButtonProps, ModalProps } from "antd";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import Default from "../../i18n";
@@ -15,7 +15,7 @@ const OpenEvent = new EEEvent("open", undefined);
 
 export interface ICrudyButtonProps<
   T extends IBase = IBase,
-  SP extends object = object,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 > extends ICrudyTableProps<T, SP> {
   emitter?: CrudyButtonEventEmitter<T>;
   buttonProps?: Omit<ButtonProps, "onClick" | "children">;
@@ -30,15 +30,45 @@ export default function CrudyButton<
   emitter = NewCrudyButtonEventEmitter<T>(),
   buttonProps,
   modalProps,
+  searchParams: searchParamsFromProps,
   ...props
 }: ICrudyButtonProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
 
   const [tableVisible, openTable_, closeTable] = useToggle(false);
 
+  /**
+   * When the modal content has not been rendered, `reload` event will be captured by listeners.
+   * Therefore, we need to use searchParams as well
+   */
+  const [searchParams, setSearchParams] = useState<SP | undefined>(
+    () => searchParamsFromProps,
+  );
+
+  useEffect(() => {
+    if (
+      !searchParamsFromProps ||
+      Object.keys(searchParamsFromProps).length === 0
+    ) {
+      return;
+    }
+
+    setSearchParams((o) => ({
+      ...o,
+      ...searchParamsFromProps,
+    }));
+  }, [searchParamsFromProps]);
+
   const openTable = useCallback(
     (e: EEEvent<"open", SP | undefined>) => {
-      emitter.dispatchEvent("reload", e?.value);
+      setSearchParams(
+        (o) =>
+          ({
+            ...o,
+            ...e?.value,
+          }) as SP,
+      );
+      emitter.dispatchEvent("reload" /*, e?.value*/);
       openTable_();
     },
     [emitter, openTable_],
@@ -67,10 +97,14 @@ export default function CrudyButton<
         }}
         footer={null}
         onCancel={closeTable}
-        zIndex={1001}
         {...modalProps}
       >
-        <CrudyTable<T, SP> name={name} emitter={emitter} {...props} />
+        <CrudyTable<T, SP>
+          name={name}
+          emitter={emitter}
+          searchParams={searchParams}
+          {...props}
+        />
       </CrudyModal>
     </>
   );
