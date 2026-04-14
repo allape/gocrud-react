@@ -7,6 +7,11 @@ export default Crudy;
 export * from "./src/api/antd.tsx";
 
 export {
+  default as CopyButton,
+  type ICopyButtonProps,
+} from "./src/component/CopyButton";
+
+export {
   default as CrudyButton,
   type ICrudyButtonProps,
 } from "./src/component/CrudyButton";
