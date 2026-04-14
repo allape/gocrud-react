@@ -17,7 +17,7 @@ export interface ICrudyButtonProps<
   T extends IBase = IBase,
   SP extends IBaseSearchParams = IBaseSearchParams,
 > extends ICrudyTableProps<T, SP> {
-  emitter?: CrudyButtonEventEmitter<T>;
+  emitter?: CrudyButtonEventEmitter<T, SP>;
   buttonProps?: Omit<ButtonProps, "onClick" | "children">;
   modalProps?: ModalProps;
 }
@@ -27,7 +27,7 @@ export default function CrudyButton<
   SP extends IBaseSearchParams = IBaseSearchParams,
 >({
   name,
-  emitter = NewCrudyButtonEventEmitter<T>(),
+  emitter = NewCrudyButtonEventEmitter<T, SP>(),
   buttonProps,
   modalProps,
   searchParams: searchParamsFromProps,
