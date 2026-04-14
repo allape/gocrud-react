@@ -1,4 +1,4 @@
-import { App, Modal, Tooltip } from "antd";
+import { App, Modal, ModalFuncProps, Tooltip } from "antd";
 import { PropsWithChildren, ReactElement, ReactNode } from "react";
 
 export interface IClickToReviewProps {
@@ -6,6 +6,7 @@ export interface IClickToReviewProps {
   title?: ReactNode;
   content?: ReactNode;
   okText?: ReactNode;
+  modalProps?: ModalFuncProps;
 }
 
 export default function ClickToReview({
@@ -14,6 +15,7 @@ export default function ClickToReview({
   tooltip,
   title,
   okText,
+  modalProps,
 }: PropsWithChildren<IClickToReviewProps>): ReactElement {
   const app = App.useApp();
   return (
@@ -25,9 +27,11 @@ export default function ClickToReview({
             title: title,
             content: content,
             width: "calc(100vw - 20px)",
+            closable: true,
             maskClosable: true,
             style: { top: "10px" },
             okText,
+            ...modalProps,
           })
         }
       >
