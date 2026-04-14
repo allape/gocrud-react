@@ -94,6 +94,9 @@ export interface CrudyButtonEventEmitter<
   ): void;
 }
 
-export default function NewCrudyButtonEventEmitter<T extends IBase>() {
-  return new CrudyEventEmitter<T>() as CrudyButtonEventEmitter<T>;
+export default function NewCrudyButtonEventEmitter<
+  T extends IBase,
+  SP extends IBaseSearchParams = IBaseSearchParams,
+>() {
+  return new CrudyEventEmitter<T, SP>() as CrudyButtonEventEmitter<T, SP>;
 }
