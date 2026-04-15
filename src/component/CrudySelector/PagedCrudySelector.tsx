@@ -9,11 +9,11 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Millisecond } from "../../config/misc.ts";
 import ChildrenWrapper from "./ChildrenWrapper.tsx";
 import {
   DefaultLabelField,
   ICrudySelectorBaseProps,
-  Millisecond,
   useEmitter,
   useOptionsBuildFunc,
 } from "./selector.ts";
