@@ -12,6 +12,7 @@ import {
   Button,
   ButtonProps,
   Card,
+  CardProps,
   Form,
   FormInstance,
   FormProps,
@@ -34,6 +35,7 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.tsx";
+import { DefaultTableScroll } from "../../config/antd.ts";
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
@@ -100,7 +102,7 @@ export interface IFormEvent<T extends IBase> {
 }
 
 export interface ITable<T extends IBase> {
-  scroll?: TableProps["scroll"];
+  scroll?: TableProps<T>["scroll"];
   columns: TableColumnsType<T>;
   pagination?: Pagination;
   actions?: (options: {
@@ -110,11 +112,13 @@ export interface ITable<T extends IBase> {
   }) => React.ReactNode;
   actionColumnProps?: TableColumnsType<T>[number];
   deleteButtonProps?: ButtonProps;
+  tableProps?: TableProps<T>;
 }
 
 export interface ICard {
   extra?: React.ReactNode;
   titleExtra?: React.ReactNode;
+  cardProps?: CardProps;
 }
 
 export interface ICrudyTableProps<
@@ -123,6 +127,7 @@ export interface ICrudyTableProps<
 >
   extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard {
   name: string;
+  title?: string;
   crudy?: Crudy<T>;
   className?: string;
   searchParams?: SP;
@@ -146,6 +151,7 @@ export default function CrudyTable<
   pageable = true,
 
   name,
+  title,
   crudy,
   className,
   searchParams: searchParamsFromProps,
@@ -159,6 +165,7 @@ export default function CrudyTable<
   actions,
   actionColumnProps,
   deleteButtonProps,
+  tableProps,
 
   children,
   defaultFormValue,
@@ -166,6 +173,7 @@ export default function CrudyTable<
 
   extra,
   titleExtra,
+  cardProps,
 
   onFormInit,
   beforeEdit,
@@ -508,9 +516,14 @@ export default function CrudyTable<
         }}
         title={
           <Flex justifyContent="flex-start">
-            <span>
-              {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
-            </span>
+            {title ? (
+              title
+            ) : (
+              <span>
+                {i18n.ot("gocrud.manage", Default.gocrud.manage, t)} {name}
+              </span>
+            )}
+
             {creatable && (
               <Button
                 title={`${i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
@@ -533,6 +546,7 @@ export default function CrudyTable<
           </Flex>
         }
         extra={extra}
+        {...cardProps}
       >
         <Table<T>
           className={styles.table}
@@ -542,8 +556,9 @@ export default function CrudyTable<
           dataSource={list}
           pagination={pageable ? pagination : false}
           onChange={handleChange}
-          scroll={scroll || { x: true }}
+          scroll={scroll || DefaultTableScroll}
           size={size}
+          {...tableProps}
         />
       </Card>
       <CrudyModal
