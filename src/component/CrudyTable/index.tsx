@@ -35,7 +35,6 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import Crudy from "../../api/antd.tsx";
-import { DefaultTableScroll } from "../../config/antd.ts";
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
@@ -556,7 +555,7 @@ export default function CrudyTable<
           dataSource={list}
           pagination={pageable ? pagination : false}
           onChange={handleChange}
-          scroll={scroll || DefaultTableScroll}
+          scroll={scroll}
           size={size}
           {...tableProps}
         />

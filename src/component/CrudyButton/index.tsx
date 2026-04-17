@@ -1,6 +1,6 @@
 import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
-import { Button, ButtonProps, ModalProps } from "antd";
+import { Button, ButtonProps, ModalProps, TableProps } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EEEvent } from "../../helper/eventemitter.ts";
@@ -12,6 +12,11 @@ import NewCrudyButtonEventEmitter, {
 } from "./eventemitter.ts";
 
 const OpenEvent = new EEEvent("open", undefined);
+
+const TableScroll: TableProps["scroll"] = {
+  y: "calc(100vh - 240px)",
+  x: "auto",
+};
 
 export interface ICrudyButtonProps<
   T extends IBase = IBase,
@@ -103,6 +108,7 @@ export default function CrudyButton<
           name={name}
           emitter={emitter}
           searchParams={searchParams}
+          scroll={TableScroll}
           {...props}
         />
       </CrudyModal>
