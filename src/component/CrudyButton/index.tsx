@@ -15,7 +15,7 @@ const OpenEvent = new EEEvent("open", undefined);
 
 const TableScroll: TableProps["scroll"] = {
   y: "calc(100vh - 240px)",
-  x: "auto",
+  x: true,
 };
 
 export interface ICrudyButtonProps<
