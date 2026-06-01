@@ -1,4 +1,7 @@
 .wrapper {
+  .titleSearch {
+    flex: 1;
+  }
   .table {
     :global(.ant-table-pagination) {
       padding: 0 10px;

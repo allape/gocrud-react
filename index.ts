@@ -1,8 +1,8 @@
 import "./src/index.scss";
 
-import Crudy from "./src/api/antd.tsx";
+import AntdCrudy from "./src/api/antd.tsx";
 
-export default Crudy;
+export default AntdCrudy;
 
 export * from "./src/api/antd.tsx";
 

@@ -34,7 +34,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import Crudy from "../../api/antd.tsx";
+import AntdCrudy from "../../api/antd.tsx";
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
@@ -114,8 +114,9 @@ export interface ITable<T extends IBase> {
   tableProps?: TableProps<T>;
 }
 
-export interface ICard {
+export interface ICard<SP extends IBaseSearchParams> {
   extra?: React.ReactNode;
+  titleSearchField?: keyof SP;
   titleExtra?: React.ReactNode;
   cardProps?: CardProps;
 }
@@ -124,10 +125,10 @@ export interface ICrudyTableProps<
   T extends IBase = IBase,
   SP extends IBaseSearchParams = IBaseSearchParams,
 >
-  extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard {
+  extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard<SP> {
   name: string;
   title?: string;
-  crudy?: Crudy<T>;
+  crudy?: AntdCrudy<T>;
   className?: string;
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T, SP>;
@@ -171,6 +172,7 @@ export default function CrudyTable<
   saveModalProps,
 
   extra,
+  titleSearchField,
   titleExtra,
   cardProps,
 
@@ -203,10 +205,15 @@ export default function CrudyTable<
     [paginationFromProps],
   );
 
-  const searchParamsRef = useRef<SP | undefined>(undefined);
+  const [titleSearch, titleSearchRef, setTitleSearch] = useProxy<string>("");
+
+  const searchParamsRef = useRef<SP>({} as SP);
+
   const [pagination, paginationRef, setPagination] =
     useProxy<ModifiedPagination>(defaultPagination);
+
   const [list, , setList] = useProxy<T[]>([]);
+
   const [formVisible, _openForm, _closeForm] = useToggle(false);
 
   const openForm = useCallback(
@@ -504,6 +511,26 @@ export default function CrudyTable<
     };
   }, []);
 
+  const handleTitleSearch = useCallback(
+    (force?: boolean) => {
+      if (
+        !titleSearchField ||
+        (!force &&
+          searchParamsRef.current[titleSearchField] === titleSearchRef.current)
+      ) {
+        return;
+      }
+
+      searchParamsRef.current = {
+        ...searchParamsRef.current,
+        [titleSearchField]: titleSearchRef.current,
+      } as SP;
+
+      getList().then();
+    },
+    [getList, titleSearchField, titleSearchRef],
+  );
+
   return (
     <>
       <Card
@@ -540,6 +567,17 @@ export default function CrudyTable<
               >
                 {loading ? <LoadingOutlined /> : <ReloadOutlined />}
               </Button>
+            )}
+            {titleSearchField && (
+              <Input
+                className={styles.titleSearch}
+                placeholder={`${i18n.ot("gocrud.search", Default.gocrud.search, t)}`}
+                allowClear
+                value={titleSearch}
+                onChange={(e) => setTitleSearch(e.target.value)}
+                onBlur={() => handleTitleSearch()}
+                onPressEnter={() => handleTitleSearch(true)}
+              />
             )}
             {titleExtra}
           </Flex>

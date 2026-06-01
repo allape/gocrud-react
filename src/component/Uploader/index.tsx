@@ -4,18 +4,20 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload, UploadFile, UploadProps } from "antd";
 import { RcFile } from "rc-upload/lib/interface";
 import React, { useEffect, useState } from "react";
-import { upload } from "../../api/antd.tsx";
+import { antdupload } from "../../api/antd.tsx";
 
-export interface IUploaderProps
-  extends Omit<UploadProps, "onChange" | "fileList"> {
-  get?: GetFunc;
+export interface IUploaderProps extends Omit<
+  UploadProps,
+  "onChange" | "fileList"
+> {
+  getFunc?: GetFunc;
   serverURL: string;
   value?: string | string[];
   onChange?: (value?: string | string[]) => void;
 }
 
 export default function Uploader({
-  get,
+  getFunc,
   serverURL,
   value,
   onChange,
@@ -76,10 +78,10 @@ export default function Uploader({
 
       try {
         onProgress?.({ percent: 50 });
-        const url = await upload(
+        const url = await antdupload(
           `${serverURL}/${digest}.${file.name.split(".").pop() || "bin"}`,
           file,
-          get,
+          getFunc,
           {
             signal: ac.signal,
             headers: {

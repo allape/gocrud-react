@@ -1,75 +1,66 @@
+import { BaseSearchParams, IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
-import { useLoading, useToggle } from "@allape/use-loading";
-import { Button, Card, Form, Input, InputNumber, Modal } from "antd";
-import { ReactElement, useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
-import CopyButton from "./component/CopyButton";
-import ThemeProvider from "./component/ThemeProvider";
-import { AntdFormLayoutProps } from "./helper/antd.tsx";
+import { ITimeSortSearchParams } from "@allape/gocrud/src/model.ts";
+import { Form, Input, TableColumnsType } from "antd";
+import { ReactElement, useMemo, useState } from "react";
+import AntdCrudy, { CrudyTable } from "../index.ts";
 import { asDefaultPattern } from "./helper/datetime.ts";
-import styles from "./style.module.scss";
+
+const UserCrudy = new AntdCrudy<IUser>("http://127.0.0.1:8080/user");
+
+export interface IUser extends IBase {
+  name: string;
+}
+
+export interface IUserSearchParams
+  extends IBaseSearchParams, ITimeSortSearchParams {
+  like_name?: string;
+}
+
+type IRecord = IUser;
+type ISearchParams = IUserSearchParams;
 
 export default function App(): ReactElement {
-  const { t } = useTranslation();
-  const { loading, execute } = useLoading();
+  const [searchParams /*setSearchParams*/] = useState<ISearchParams>(() => ({
+    ...BaseSearchParams,
+    orderBy_updatedAt: "desc",
+  }));
 
-  const [record, setRecord] = useState<IBase | undefined>();
-
-  const [visible, openModal, closeModal] = useToggle(false);
-
-  const [form] = Form.useForm<IBase>();
-
-  const handleOk = useCallback(async () => {
-    await execute(async () => {
-      const data = await form.validateFields();
-      await new Promise((r) => setTimeout(r, 3000));
-      setRecord(data);
-      closeModal();
-    });
-  }, [closeModal, execute, form]);
+  const columns = useMemo<TableColumnsType<IRecord>>(
+    () => [
+      {
+        title: "ID",
+        dataIndex: "id",
+      },
+      {
+        title: "Name",
+        dataIndex: "name",
+      },
+      {
+        title: "Created At",
+        dataIndex: "createdAt",
+        render: asDefaultPattern,
+      },
+      {
+        title: "Updated At",
+        dataIndex: "updatedAt",
+        render: asDefaultPattern,
+      },
+    ],
+    [],
+  );
 
   return (
-    <ThemeProvider>
-      <Card
-        className={styles.wrapper}
-        title="Crud for React with AntD"
-        extra={
-          <>
-            <Button type="primary" onClick={openModal}>
-              {t("gocrud.add")}
-            </Button>
-          </>
-        }
-      >
-        <pre>
-          <code>{record ? JSON.stringify(record, null, 4) : "----"}</code>
-        </pre>
-        <div>Now {asDefaultPattern(new Date())}</div>
-        <div>
-          <CopyButton value="Content for CopyButton" />
-        </div>
-      </Card>
-      <Modal
-        open={visible}
-        title="Modal"
-        closable={!loading}
-        maskClosable={!loading}
-        onCancel={closeModal}
-        cancelButtonProps={{ disabled: loading }}
-        okText={t("gocrud.save")}
-        cancelText={t("gocrud.cancel")}
-        onOk={handleOk}
-        okButtonProps={{ loading }}
-      >
-        <Form {...AntdFormLayoutProps} form={form}>
-          <Form.Item name="name" label="Name">
-            <Input placeholder="name" allowClear />
-          </Form.Item>
-          <Form.Item name="age" label="Age">
-            <InputNumber min={18} step={1} precision={0} placeholder="age" />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </ThemeProvider>
+    <CrudyTable<IRecord, ISearchParams>
+      name="User"
+      crudy={UserCrudy}
+      columns={columns}
+      searchParams={searchParams}
+      titleSearchField="like_name"
+    >
+      <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+        <Input maxLength={200} placeholder="Name" />
+      </Form.Item>
+    </CrudyTable>
   );
 }

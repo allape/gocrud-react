@@ -2,7 +2,7 @@ import { IBase } from "@allape/gocrud/src/model.ts";
 import { SelectProps } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
-import Crudy from "../../api/antd.tsx";
+import AntdCrudy from "../../api/antd.tsx";
 import { ILV } from "../../helper/antd.tsx";
 import EventEmitter, { EEEventListener } from "../../helper/eventemitter.ts";
 
@@ -27,7 +27,7 @@ export interface ICrudySelectorBaseProps<
   T extends IBase,
   KEYWORDS extends object = object,
 > extends Omit<SelectProps, "children" | "options"> {
-  crudy: Crudy<T>;
+  crudy: AntdCrudy<T>;
   buildOptions?: typeof BuildOptions<T>;
   labelPropName?: keyof T | string;
   valuePropName?: keyof T | string;
