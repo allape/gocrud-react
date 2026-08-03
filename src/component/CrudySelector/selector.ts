@@ -1,4 +1,4 @@
-import { IBase } from "@allape/gocrud/src/model.ts";
+import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { SelectProps } from "antd";
 import { DefaultOptionType } from "rc-select/lib/Select";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
@@ -25,13 +25,13 @@ export function BuildOptions<
 
 export interface ICrudySelectorBaseProps<
   T extends IBase,
-  KEYWORDS extends object = object,
+  SP extends IBaseSearchParams = IBaseSearchParams,
 > extends Omit<SelectProps, "children" | "options"> {
-  crudy: AntdCrudy<T>;
+  crudy: AntdCrudy<T, SP>;
   buildOptions?: typeof BuildOptions<T>;
   labelPropName?: keyof T | string;
   valuePropName?: keyof T | string;
-  searchParams?: KEYWORDS;
+  searchParams?: SP;
   emitter?: EventEmitter<"changed", T[] | undefined>;
   onLoaded?: (records: T[]) => void;
 }

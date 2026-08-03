@@ -3,6 +3,9 @@ import Crudy, {
   get,
   GetFunc,
   i18n,
+  IBase,
+  IBaseSearchParams,
+  M2MConnectorHandler,
   upload as uploady,
 } from "@allape/gocrud";
 import { Modal } from "antd";
@@ -47,8 +50,32 @@ export function antdupload(
   return uploady(url, file, getFunc, config);
 }
 
-export default class AntdCrudy<T> extends Crudy<T> {
-  constructor(public readonly baseUrl: string) {
-    super(baseUrl, antdget);
+export default class AntdCrudy<
+  T extends IBase,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
+> extends Crudy<T, SearchParams> {
+  constructor(
+    public readonly baseUrl: string,
+    protected readonly getFunc: GetFunc = antdget,
+  ) {
+    super(baseUrl, getFunc);
+  }
+}
+
+export class AntdM2MConnectorHandler<
+  M1 extends IBase,
+  M2 extends IBase,
+  M2M,
+  SearchParams = object,
+> extends M2MConnectorHandler<M1, M2, M2M, SearchParams> {
+  constructor(
+    public readonly baseUrl: string,
+    protected readonly m1Crudy: AntdCrudy<M1>,
+    protected readonly m2Crudy: AntdCrudy<M2>,
+    protected readonly m1IdFieldName: keyof M2M,
+    protected readonly m2IdFieldName: keyof M2M,
+    protected readonly getFunc: GetFunc = antdget,
+  ) {
+    super(baseUrl, m1Crudy, m2Crudy, m1IdFieldName, m2IdFieldName, getFunc);
   }
 }

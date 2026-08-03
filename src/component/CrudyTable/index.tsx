@@ -128,7 +128,7 @@ export interface ICrudyTableProps<
   extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard<SP> {
   name: string;
   title?: string;
-  crudy?: AntdCrudy<T>;
+  crudy?: AntdCrudy<T, SP>;
   className?: string;
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T, SP>;
@@ -255,7 +255,7 @@ export default function CrudyTable<
         const sp = searchParamsRef.current;
 
         if (pageable) {
-          records = await crudy.page<SP>(
+          records = await crudy.page(
             paginationRef.current.current,
             paginationRef.current.pageSize,
             sp,
@@ -264,11 +264,11 @@ export default function CrudyTable<
             },
           );
 
-          total = await crudy.count<SP>(sp, {
+          total = await crudy.count(sp, {
             signal: getListAbortController.signal,
           });
         } else {
-          records = await crudy.all<SP>(sp, {
+          records = await crudy.all(sp, {
             signal: getListAbortController.signal,
           });
         }
