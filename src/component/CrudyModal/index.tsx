@@ -1,8 +1,9 @@
 import { Modal, ModalProps } from "antd";
 import React, { useEffect, useState } from "react";
+import { AntdModalInitZIndex } from "../../config/antd.ts";
 import useMobile from "../../hook/useMobile.ts";
 
-let IncrementZIndex = 1000;
+let ModalOpenCount = 0;
 
 export default function CrudyModal({
   children,
@@ -11,15 +12,17 @@ export default function CrudyModal({
 }: ModalProps): React.ReactElement {
   const isMobile = useMobile();
 
-  const [zIndex, setZIndex] = useState<number>(IncrementZIndex);
+  const [zIndex, setZIndex] = useState<number>(AntdModalInitZIndex);
 
   useEffect(() => {
     if (open) {
-      IncrementZIndex += 1;
-      // if (IncrementZIndex >= Number.MAX_SAFE_INTEGER) { // ignore this for now
-      //   IncrementZIndex = 1000;
-      // }
-      setZIndex(IncrementZIndex);
+      ModalOpenCount += 1;
+      setZIndex(AntdModalInitZIndex + ModalOpenCount);
+    } else {
+      ModalOpenCount -= 1;
+      if (ModalOpenCount < 0) {
+        ModalOpenCount = 0;
+      }
     }
   }, [open]);
 
