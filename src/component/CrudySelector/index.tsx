@@ -1,3 +1,4 @@
+import { IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
 import { Select, Spin } from "antd";
@@ -12,14 +13,14 @@ import {
 
 export type ICrudySelectorProps<
   T extends IBase,
-  KEYWORDS extends object = object,
-> = ICrudySelectorBaseProps<T, KEYWORDS>;
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
+> = ICrudySelectorBaseProps<T, SearchParams>;
 
 export default function CrudySelector<
   T extends IBase = IBase,
-  KEYWORDS extends object = object,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
 >(
-  props: PropsWithChildren<ICrudySelectorProps<T, KEYWORDS>>,
+  props: PropsWithChildren<ICrudySelectorProps<T, SearchParams>>,
 ): React.ReactElement {
   const {
     value,
@@ -39,7 +40,7 @@ export default function CrudySelector<
 
   const getList = useCallback(() => {
     execute(async () => {
-      const records = await crudy.all<KEYWORDS>(searchParams);
+      const records = await crudy.all(searchParams);
       onLoaded?.(records);
       setOptions(buildOptions(records));
     }).then();

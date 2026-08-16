@@ -25,25 +25,25 @@ export function BuildOptions<
 
 export interface ICrudySelectorBaseProps<
   T extends IBase,
-  SP extends IBaseSearchParams = IBaseSearchParams,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
 > extends Omit<SelectProps, "children" | "options"> {
-  crudy: AntdCrudy<T, SP>;
+  crudy: AntdCrudy<T, SearchParams>;
   buildOptions?: typeof BuildOptions<T>;
   labelPropName?: keyof T | string;
   valuePropName?: keyof T | string;
-  searchParams?: SP;
+  searchParams?: SearchParams;
   emitter?: EventEmitter<"changed", T[] | undefined>;
   onLoaded?: (records: T[]) => void;
 }
 
 export function useOptionsBuildFunc<
   T extends IBase,
-  KEYWORDS extends object = object,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
 >({
   buildOptions,
   labelPropName,
   valuePropName,
-}: ICrudySelectorBaseProps<T, KEYWORDS>) {
+}: ICrudySelectorBaseProps<T, SearchParams>) {
   return useCallback(
     (records: T[]) => {
       return (buildOptions || BuildOptions)(
@@ -56,9 +56,12 @@ export function useOptionsBuildFunc<
   );
 }
 
-export function useEmitter<T extends IBase, KEYWORDS extends object = object>(
-  buildOptions: ReturnType<typeof useOptionsBuildFunc<T, KEYWORDS>>,
-  emitter: ICrudySelectorBaseProps<T, KEYWORDS>["emitter"],
+export function useEmitter<
+  T extends IBase,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
+>(
+  buildOptions: ReturnType<typeof useOptionsBuildFunc<T, SearchParams>>,
+  emitter: ICrudySelectorBaseProps<T, SearchParams>["emitter"],
   setOptions: Dispatch<SetStateAction<DefaultOptionType[]>>,
   getList: () => void,
 ) {

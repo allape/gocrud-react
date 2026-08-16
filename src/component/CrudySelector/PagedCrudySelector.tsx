@@ -1,3 +1,4 @@
+import { IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
 import { Select, Spin } from "antd";
@@ -20,19 +21,19 @@ import {
 
 export interface IPagedCrudySelectorProps<
   T extends IBase,
-  KEYWORDS extends object = object,
-> extends ICrudySelectorBaseProps<T, KEYWORDS> {
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
+> extends ICrudySelectorBaseProps<T, SearchParams> {
   pageSize?: number;
   searchDelay?: Millisecond;
-  searchPropName?: keyof T | keyof KEYWORDS | string;
-  inKeyword?: keyof T | keyof KEYWORDS | string;
+  searchPropName?: keyof T | keyof SearchParams | string;
+  inKeyword?: keyof T | keyof SearchParams | string;
 }
 
 export default function PagedCrudySelector<
   T extends IBase = IBase,
-  KEYWORDS extends object = object,
+  SearchParams extends IBaseSearchParams = IBaseSearchParams,
 >(
-  props: PropsWithChildren<IPagedCrudySelectorProps<T, KEYWORDS>>,
+  props: PropsWithChildren<IPagedCrudySelectorProps<T, SearchParams>>,
 ): React.ReactElement {
   const {
     value,
@@ -56,7 +57,7 @@ export default function PagedCrudySelector<
 
   const [options, setOptions] = useState<DefaultOptionType[]>([]);
 
-  const buildOptions = useOptionsBuildFunc<T, KEYWORDS>(props);
+  const buildOptions = useOptionsBuildFunc<T, SearchParams>(props);
 
   const getList = useCallback(
     (keyword?: string) => {
@@ -64,7 +65,7 @@ export default function PagedCrudySelector<
         const records = await crudy.page(1, pageSize, {
           ...searchParams,
           [searchPropName || labelPropName]: keyword,
-        });
+        } as SearchParams);
 
         currentRef.current.forEach((selected) => {
           if (!records.find((record) => record.id === selected.id)) {
@@ -125,7 +126,7 @@ export default function PagedCrudySelector<
       const records = await (inKeyword
         ? crudy.all({
             [inKeyword]: ids,
-          })
+          } as unknown as SearchParams)
         : Promise.all(ids.map((id) => crudy.one(id))));
 
       currentRef.current = [...exists, ...records];
