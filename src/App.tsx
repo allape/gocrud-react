@@ -111,18 +111,15 @@ export default function App(): ReactElement {
 
   const handleAfterList = useCallback(
     async (records: IRecord[]): Promise<IRecord[]> => {
-      const userTags = await UserTagHandler.get<ITag>(
+      await UserTagHandler.get<ITag, IUserModified>(
         "userId",
-        records.map((r) => r.id),
+        records,
+        {},
+        (user, tags) => {
+          user._tags = tags;
+          user._tagIds = tags.map((t) => t.id);
+        },
       );
-      Object.entries(userTags).map(([userId, tags]) => {
-        const user = records.find((r) => `${r.id}` === userId);
-        if (!user) {
-          return;
-        }
-        user._tags = tags;
-        user._tagIds = tags.map((t) => t.id);
-      });
       return records;
     },
     [],

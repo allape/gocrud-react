@@ -114,11 +114,12 @@ export interface ITable<T extends IBase> {
   tableProps?: TableProps<T>;
 }
 
-export interface ICard<SP extends IBaseSearchParams> {
+export interface ICard<SP extends IBaseSearchParams = IBaseSearchParams> {
   extra?: React.ReactNode;
   titleSearchField?: keyof SP;
   titleExtra?: React.ReactNode;
   cardProps?: CardProps;
+  onTitleSearch?: (searchParams: SP) => SP | Promise<SP>;
 }
 
 export interface ICrudyTableProps<
@@ -175,6 +176,7 @@ export default function CrudyTable<
   titleSearchField,
   titleExtra,
   cardProps,
+  onTitleSearch,
 
   onFormInit,
   beforeEdit,
@@ -512,7 +514,7 @@ export default function CrudyTable<
   }, []);
 
   const handleTitleSearch = useCallback(
-    (force?: boolean) => {
+    async (force?: boolean) => {
       if (
         !titleSearchField ||
         (!force &&
@@ -526,9 +528,18 @@ export default function CrudyTable<
         [titleSearchField]: titleSearchRef.current,
       } as SP;
 
+      setPagination((old) => ({
+        ...old,
+        current: 1,
+      }));
+
+      if (onTitleSearch) {
+        searchParamsRef.current = await onTitleSearch(searchParamsRef.current);
+      }
+
       getList().then();
     },
-    [getList, titleSearchField, titleSearchRef],
+    [getList, onTitleSearch, setPagination, titleSearchField, titleSearchRef],
   );
 
   return (
