@@ -55,7 +55,6 @@ export default function CrudySelector<
         {...selectorProps}
         value={value}
         optionFilterProp="label"
-        filterOption={false}
         showSearch
         autoClearSearchValue
         options={options}
