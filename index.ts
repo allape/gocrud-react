@@ -66,6 +66,11 @@ export {
 
 export { default as CrudyModal } from "./src/component/CrudyModal";
 
+export {
+  default as CrudyModalButton,
+  type ICrudyModalButtonProps,
+} from "./src/component/CrudyModalButton";
+
 export { default as useColorScheme } from "./src/hook/useColorScheme";
 export { default as useMobile } from "./src/hook/useMobile";
 
@@ -82,3 +87,5 @@ export {
 } from "./src/helper/eventemitter";
 
 export * as i18n from "./src/i18n";
+
+export { type FalseToStop } from "./src/helper/misc.ts";

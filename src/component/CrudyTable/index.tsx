@@ -15,7 +15,6 @@ import {
   CardProps,
   Form,
   FormInstance,
-  FormProps,
   Input,
   ModalProps,
   Popconfirm,
@@ -35,9 +34,14 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import AntdCrudy from "../../api/antd.tsx";
+import {
+  DefaultFormLayoutProps,
+  DefaultFormModalProps,
+} from "../../config/antd.ts";
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
+import { FalseToStop } from "../../helper/misc.ts";
 import { Size, useSize } from "../../hook/useMobile.ts";
 import Default from "../../i18n";
 import CrudyModal from "../CrudyModal";
@@ -47,11 +51,6 @@ import styles from "./style.module.scss";
 
 type ModifiedPagination = Omit<Pagination, "current" | "pageSize"> &
   Required<Pick<Pagination, "current" | "pageSize">>;
-
-const FormLayoutProps: Pick<FormProps, "labelCol" | "wrapperCol"> = {
-  labelCol: { span: 24 },
-  wrapperCol: { span: 24 },
-};
 
 // noinspection JSUnusedGlobalSymbols
 const DefaultPagination: ModifiedPagination = {
@@ -67,8 +66,6 @@ const DefaultPagination: ModifiedPagination = {
       total,
     }),
 };
-
-export type FalseToStop = false | boolean | void;
 
 export interface ISwitch {
   reloadable?: boolean;
@@ -611,7 +608,6 @@ export default function CrudyTable<
       </Card>
       <CrudyModal
         open={formVisible}
-        width={800}
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
         afterClose={handleFormClose}
         cancelButtonProps={{ disabled: loading }}
@@ -620,13 +616,14 @@ export default function CrudyTable<
         okText={i18n.ot("gocrud.save", Default.gocrud.save, t)}
         onOk={handleSave}
         destroyOnHidden
+        {...DefaultFormModalProps}
         {...saveModalProps}
         onCancel={(e) => {
           closeForm();
           saveModalProps?.onCancel?.(e);
         }}
       >
-        <Form<T> {...FormLayoutProps} form={form}>
+        <Form<T> {...DefaultFormLayoutProps} form={form}>
           <Form.Item name="id" noStyle hidden>
             <Input />
           </Form.Item>
