@@ -4,6 +4,7 @@ import { AntdModalInitZIndex } from "../../config/antd.ts";
 import useMobile from "../../hook/useMobile.ts";
 
 let ModalOpenCount = 0;
+let ModalOpenAccumulatedCount = 0;
 
 export default function CrudyModal({
   children,
@@ -17,11 +18,13 @@ export default function CrudyModal({
   useEffect(() => {
     if (open) {
       ModalOpenCount += 1;
-      setZIndex(AntdModalInitZIndex + ModalOpenCount);
+      ModalOpenAccumulatedCount += 1;
+      setZIndex(AntdModalInitZIndex + ModalOpenAccumulatedCount);
     } else {
       ModalOpenCount -= 1;
-      if (ModalOpenCount < 0) {
+      if (ModalOpenCount <= 0) {
         ModalOpenCount = 0;
+        ModalOpenAccumulatedCount = 0;
       }
     }
   }, [open]);
