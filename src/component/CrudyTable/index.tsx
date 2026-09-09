@@ -41,7 +41,7 @@ import {
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { EEEvent } from "../../helper/eventemitter.ts";
-import { FalseToStop } from "../../helper/misc.ts";
+import { FalseToStop, Promisable } from "../../helper/misc.ts";
 import { Size, useSize } from "../../hook/useMobile.ts";
 import Default from "../../i18n";
 import CrudyModal from "../CrudyModal";
@@ -86,15 +86,15 @@ export interface IFormEvent<T extends IBase> {
   beforeEdit?: (
     record: T | undefined,
     form: FormInstance<T>,
-  ) => Promise<T | undefined> | T | void;
-  beforeSave?: (record: T, form: FormInstance<T>) => Promise<T> | T | void;
-  onSave?: (record: T) => Promise<T>;
+  ) => Promisable<T | undefined>;
+  beforeSave?: (record: T, form: FormInstance<T>) => Promisable<T>;
+  onSave?: (record: T) => Promisable<T>;
   afterSaved?: (
     record: T,
     form: FormInstance<T>,
-  ) => Promise<FalseToStop> | FalseToStop;
-  afterListed?: (records: T[]) => Promise<T[]> | T[];
-  onDelete?: (record: T) => Promise<void>;
+  ) => Promisable<FalseToStop | void>;
+  afterListed?: (records: T[]) => Promisable<T[]>;
+  onDelete?: (record: T) => Promisable<void>;
 }
 
 export interface ITable<T extends IBase> {
@@ -116,7 +116,7 @@ export interface ICard<SP extends IBaseSearchParams = IBaseSearchParams> {
   titleSearchField?: keyof SP;
   titleExtra?: React.ReactNode;
   cardProps?: CardProps;
-  onTitleSearch?: (searchParams: SP) => SP | Promise<SP>;
+  onTitleSearch?: (searchParams: SP) => Promisable<SP>;
 }
 
 export interface ICrudyTableProps<
@@ -376,6 +376,8 @@ export default function CrudyTable<
       if (newRecord) {
         form.setFieldsValue(newRecord as RecursivePartial<T>);
         setEditingRecord(newRecord);
+      } else {
+        form.resetFields();
       }
       openForm(newRecord);
     }).then();
@@ -464,9 +466,9 @@ export default function CrudyTable<
       e: EEEvent<"open-save-form", RecursivePartial<T> | undefined>,
     ) => {
       if (e.value) {
-        form.setFieldsValue(e.value);
+        handleEdit(e.value as T);
       } else {
-        form.resetFields();
+        handleAdd();
       }
       openForm(e.value);
     };
@@ -482,7 +484,7 @@ export default function CrudyTable<
       emitter.removeEventListener("open-save-form", handleOpenSaveForm);
       emitter.removeEventListener("close-save-form", handleCloseForm);
     };
-  }, [closeForm, emitter, form, getList, openForm]);
+  }, [closeForm, emitter, form, getList, handleAdd, handleEdit, openForm]);
 
   // useEffect(() => {
   //   getList().then();

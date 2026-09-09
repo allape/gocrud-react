@@ -89,4 +89,4 @@ export {
 
 export * as i18n from "./src/i18n";
 
-export { type FalseToStop } from "./src/helper/misc.ts";
+export { type FalseToStop, type Promisable } from "./src/helper/misc.ts";

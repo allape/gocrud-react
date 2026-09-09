@@ -7,7 +7,7 @@ import {
   FormProps,
   ModalProps,
 } from "antd";
-import React, {
+import {
   ReactElement,
   ReactNode,
   useCallback,
@@ -19,13 +19,13 @@ import {
   DefaultFormModalProps,
 } from "../../config/antd.ts";
 import { RecursivePartial } from "../../helper/antd.tsx";
-import { FalseToStop } from "../../helper/misc.ts";
+import { FalseToStop, Promisable } from "../../helper/misc.ts";
 import CrudyModal from "../CrudyModal";
 
 export interface ICrudyModalButtonProps<T = unknown>
   extends
     Partial<Pick<UseLoadingReturn, "loading" | "execute">>,
-    Pick<ModalProps, "okText" | "cancelText" | "onCancel" | "title">,
+    Pick<ModalProps, "okText" | "cancelText" | "title">,
     Pick<ButtonProps, "children" | "type" | "size"> {
   buttonProps?: Omit<ButtonProps, "children" | "type" | "size" | "loading">;
 
@@ -33,10 +33,9 @@ export interface ICrudyModalButtonProps<T = unknown>
     ModalProps,
     "onOk" | "okText" | "cancelText" | "onCancel" | "title"
   >;
-  onOk?: (
-    record: T,
-    form: FormInstance<T>,
-  ) => void | Promise<void | FalseToStop>;
+  onOk?: (record: T, form: FormInstance<T>) => Promisable<FalseToStop | void>;
+  onCancel?: () => Promisable<FalseToStop | void>;
+  cancelButtonDisabled?: boolean;
 
   formProps?: Omit<FormProps<T>, "form">;
   defaultValue?: RecursivePartial<T>;
@@ -58,6 +57,8 @@ export default function CrudyModalButton<T = unknown>({
   onOk,
   cancelText,
   onCancel,
+  cancelButtonDisabled,
+
   title,
 
   formProps,
@@ -83,13 +84,13 @@ export default function CrudyModalButton<T = unknown>({
     setOpen(true);
   }, []);
 
-  const handleCancel = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      setOpen(false);
-      onCancel?.(e);
-    },
-    [onCancel],
-  );
+  const handleCancel = useCallback(async () => {
+    const falseToStop = await onCancel?.();
+    if (falseToStop === false) {
+      return;
+    }
+    setOpen(false);
+  }, [onCancel]);
 
   const handleAfterClose = useCallback(() => {
     modalProps?.afterClose?.();
@@ -103,7 +104,7 @@ export default function CrudyModalButton<T = unknown>({
     const value = await form.validateFields();
     const falseToStop = await onOk?.(value, form);
     if (falseToStop === false) {
-      return;
+      return false;
     }
     setOpen(false);
   }, [form, onOk]);
@@ -133,7 +134,8 @@ export default function CrudyModalButton<T = unknown>({
         confirmLoading={loading}
         afterClose={handleAfterClose}
         cancelButtonProps={{
-          disabled: loading,
+          disabled:
+            cancelButtonDisabled !== undefined ? cancelButtonDisabled : loading,
           ...modalProps?.cancelButtonProps,
         }}
         onCancel={handleCancel}
