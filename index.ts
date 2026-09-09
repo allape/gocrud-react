@@ -73,6 +73,7 @@ export {
 
 export { default as useColorScheme } from "./src/hook/useColorScheme";
 export { default as useMobile } from "./src/hook/useMobile";
+export { default as useScrollableBodyModalProps } from "./src/hook/useScrollableBodyModalProps";
 
 export * as config from "./src/config";
 
