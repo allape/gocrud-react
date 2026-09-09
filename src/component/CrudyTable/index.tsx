@@ -86,8 +86,8 @@ export interface IFormEvent<T extends IBase> {
   beforeEdit?: (
     record: T | undefined,
     form: FormInstance<T>,
-  ) => Promisable<T | undefined>;
-  beforeSave?: (record: T, form: FormInstance<T>) => Promisable<T>;
+  ) => Promisable<T | void>;
+  beforeSave?: (record: T, form: FormInstance<T>) => Promisable<T | void>;
   onSave?: (record: T) => Promisable<T>;
   afterSaved?: (
     record: T,
