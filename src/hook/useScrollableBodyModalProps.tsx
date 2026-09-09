@@ -12,13 +12,9 @@ function newDefaultStyle(isMobile: boolean): ModalProps["styles"] {
   };
 }
 
-export interface IUseScrollableBodyModalPropsProps {
-  newStyleFunc?: typeof newDefaultStyle;
-}
-
-export default function useScrollableBodyModalProps({
+export default function useScrollableBodyModalProps(
   newStyleFunc = newDefaultStyle,
-}: IUseScrollableBodyModalPropsProps): Partial<ModalProps> {
+): Partial<ModalProps> {
   const isMobile = useMobile();
   return useMemo<ModalProps>(
     () => ({
