@@ -3,6 +3,7 @@ import { useLoading, useProxy, useToggle } from "@allape/use-loading";
 import { UseLoadingReturn } from "@allape/use-loading/lib/hook/useLoading";
 import {
   AppstoreAddOutlined,
+  CopyOutlined,
   DeleteOutlined,
   EditOutlined,
   LoadingOutlined,
@@ -52,6 +53,8 @@ import styles from "./style.module.scss";
 type ModifiedPagination = Omit<Pagination, "current" | "pageSize"> &
   Required<Pick<Pagination, "current" | "pageSize">>;
 
+type FormAction = "add" | "edit" | "duplicate";
+
 // noinspection JSUnusedGlobalSymbols
 const DefaultPagination: ModifiedPagination = {
   current: 1,
@@ -71,13 +74,15 @@ export interface ISwitch {
   reloadable?: boolean;
   creatable?: boolean;
   editable?: boolean;
+  duplicatable?: boolean;
   deletable?: boolean;
   pageable?: boolean;
 }
 
 export interface IForm<T extends IBase> {
-  children?: React.ReactNode | ((record?: Partial<T>) => React.ReactNode);
-  defaultFormValue?: Partial<T>;
+  children?:
+    React.ReactNode | ((record?: RecursivePartial<T>) => React.ReactNode);
+  defaultFormValue?: RecursivePartial<T>;
   saveModalProps?: ModalProps;
 }
 
@@ -86,7 +91,8 @@ export interface IFormEvent<T extends IBase> {
   beforeEdit?: (
     record: T | undefined,
     form: FormInstance<T>,
-  ) => Promisable<T | void>;
+    action: FormAction,
+  ) => Promisable<RecursivePartial<T> | T | void>;
   beforeSave?: (record: T, form: FormInstance<T>) => Promisable<T | void>;
   onSave?: (record: T) => Promisable<T>;
   afterSaved?: (
@@ -145,6 +151,7 @@ export default function CrudyTable<
   reloadable = true,
   creatable = true,
   editable = true,
+  duplicatable = true,
   deletable = true,
   pageable = true,
 
@@ -215,10 +222,16 @@ export default function CrudyTable<
 
   const [formVisible, _openForm, _closeForm] = useToggle(false);
 
+  const [form] = Form.useForm<T>();
+  const [editingRecord, setEditingRecord] = useState<
+    RecursivePartial<T> | undefined
+  >();
+
   const openForm = useCallback(
-    (record?: RecursivePartial<T> | Partial<T> | T) => {
-      _openForm();
+    (record?: RecursivePartial<T> | T) => {
       emitter?.dispatchEvent("save-form-opened", record);
+      setEditingRecord(record as RecursivePartial<T>);
+      _openForm();
     },
     [_openForm, emitter],
   );
@@ -226,13 +239,12 @@ export default function CrudyTable<
   const closeForm = useCallback(
     (record?: T) => {
       emitter?.dispatchEvent("save-form-closed", record);
+      form.resetFields();
+      setEditingRecord(undefined);
       _closeForm();
     },
-    [_closeForm, emitter],
+    [_closeForm, emitter, form],
   );
-
-  const [form] = Form.useForm<T>();
-  const [editingRecord, setEditingRecord] = useState<Partial<T> | undefined>();
 
   useEffect(() => {
     onFormInit?.(form);
@@ -302,11 +314,6 @@ export default function CrudyTable<
     [getList, paginationRef],
   );
 
-  const handleFormClose = useCallback(() => {
-    form.resetFields();
-    setEditingRecord(undefined);
-  }, [form]);
-
   const handleSave = useCallback(async () => {
     if (!crudy || isLoading()) {
       return;
@@ -358,30 +365,31 @@ export default function CrudyTable<
   );
 
   const handleEdit = useCallback(
-    (record: T) => {
+    (record: T | undefined = undefined, action: FormAction = "edit") => {
       execute(async () => {
-        const newRecord = (await beforeEdit?.(record, form)) || record;
-        form.setFieldsValue(newRecord as RecursivePartial<T>);
-        setEditingRecord(newRecord);
+        let newRecord =
+          (await beforeEdit?.(record, form, action)) ||
+          record ||
+          defaultFormValue;
+
+        if (newRecord) {
+          if (action === "duplicate") {
+            newRecord = {
+              ...newRecord,
+              id: undefined,
+            };
+          }
+
+          form.setFieldsValue(newRecord as RecursivePartial<T>);
+        } else {
+          form.resetFields();
+        }
+
         openForm(newRecord);
       }).then();
     },
-    [beforeEdit, execute, form, openForm],
+    [beforeEdit, defaultFormValue, execute, form, openForm],
   );
-
-  const handleAdd = useCallback(() => {
-    execute(async () => {
-      const newRecord =
-        (await beforeEdit?.(defaultFormValue as T, form)) || defaultFormValue;
-      if (newRecord) {
-        form.setFieldsValue(newRecord as RecursivePartial<T>);
-        setEditingRecord(newRecord);
-      } else {
-        form.resetFields();
-      }
-      openForm(newRecord);
-    }).then();
-  }, [beforeEdit, defaultFormValue, execute, form, openForm]);
 
   const size = useSize(mobileMaxWidth);
 
@@ -401,9 +409,19 @@ export default function CrudyTable<
                 title={i18n.ot("gocrud.edit", Default.gocrud.edit, t)}
                 size={size}
                 type="link"
-                onClick={() => handleEdit(record)}
+                onClick={() => handleEdit(record, "edit")}
               >
                 <EditOutlined />
+              </Button>
+            )}
+            {duplicatable && (
+              <Button
+                title={i18n.ot("gocrud.duplicate", Default.gocrud.duplicate, t)}
+                size={size}
+                type="link"
+                onClick={() => handleEdit(record, "duplicate")}
+              >
+                <CopyOutlined />
               </Button>
             )}
             {deletable && (
@@ -432,17 +450,18 @@ export default function CrudyTable<
       },
     ],
     [
-      actions,
       columns,
+      t,
+      actionColumnProps,
+      editable,
+      size,
+      duplicatable,
       deletable,
       deleteButtonProps,
-      editable,
+      actions,
       execute,
-      handleDelete,
       handleEdit,
-      actionColumnProps,
-      size,
-      t,
+      handleDelete,
     ],
   );
 
@@ -465,12 +484,7 @@ export default function CrudyTable<
     const handleOpenSaveForm = (
       e: EEEvent<"open-save-form", RecursivePartial<T> | undefined>,
     ) => {
-      if (e.value) {
-        handleEdit(e.value as T);
-      } else {
-        handleAdd();
-      }
-      openForm(e.value);
+      handleEdit(e.value as T, e.value?.id ? "edit" : "add");
     };
     emitter.addEventListener("open-save-form", handleOpenSaveForm);
 
@@ -484,7 +498,7 @@ export default function CrudyTable<
       emitter.removeEventListener("open-save-form", handleOpenSaveForm);
       emitter.removeEventListener("close-save-form", handleCloseForm);
     };
-  }, [closeForm, emitter, form, getList, handleAdd, handleEdit, openForm]);
+  }, [closeForm, emitter, getList, handleEdit]);
 
   // useEffect(() => {
   //   getList().then();
@@ -564,7 +578,7 @@ export default function CrudyTable<
               <Button
                 title={`${i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
                 type="primary"
-                onClick={handleAdd}
+                onClick={() => handleEdit(undefined, "add")}
               >
                 <AppstoreAddOutlined />
               </Button>
@@ -611,10 +625,9 @@ export default function CrudyTable<
       <CrudyModal
         open={formVisible}
         title={`${editingRecord?.id ? i18n.ot("gocrud.edit", Default.gocrud.edit, t) : i18n.ot("gocrud.add", Default.gocrud.add, t)} ${name}`}
-        afterClose={handleFormClose}
         cancelButtonProps={{ disabled: loading }}
         cancelText={i18n.ot("gocrud.cancel", Default.gocrud.cancel, t)}
-        okButtonProps={{ loading }}
+        confirmLoading={loading}
         okText={i18n.ot("gocrud.save", Default.gocrud.save, t)}
         onOk={handleSave}
         destroyOnHidden

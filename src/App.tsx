@@ -1,14 +1,37 @@
 import { BaseSearchParams, IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
-import { Button, Form, Input, TableColumnsType, Tag } from "antd";
-import { ReactElement, useCallback, useMemo, useState } from "react";
+import { MoreOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Divider,
+  Dropdown,
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  MenuProps,
+  TableColumnsType,
+  Tag,
+} from "antd";
+import {
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import AntdCrudy, {
   AntdM2MConnectorHandler,
+  CrudyButton,
   CrudyTable,
+  ICrudyButtonProps,
+  ICrudySelectorProps,
   NewCrudyButtonEventEmitter,
+  PagedCrudySelector,
 } from "../index.ts";
 import { asDefaultPattern } from "./helper/datetime.ts";
+import styles from "./style.module.scss";
 
 export interface IUser extends IBase {
   name: string;
@@ -61,7 +84,10 @@ export default function App(): ReactElement {
   const { loading, execute } = useLoading();
 
   const emitter = useMemo(
-    () => NewCrudyButtonEventEmitter<IUser, IUserSearchParams>(),
+    () => ({
+      User: NewCrudyButtonEventEmitter<IUser, IUserSearchParams>(),
+      Tag: NewCrudyButtonEventEmitter<ITag, ITagSearchParams>(),
+    }),
     [],
   );
 
@@ -109,6 +135,27 @@ export default function App(): ReactElement {
     [],
   );
 
+  const handleBeforeSave = useCallback((record: IRecord): IRecord => {
+    delete record._tags;
+    delete record._tagIds;
+    return record;
+  }, []);
+
+  const handleAfterSaved = useCallback(
+    async (record: IRecord, form: FormInstance<IRecord>) => {
+      const tagIds: ITag["id"][] | undefined = form.getFieldValue("_tagIds");
+      await UserTagHandler.saveAfterDelete(
+        "userId",
+        record.id,
+        tagIds?.map((ti) => ({
+          userId: record.id,
+          tagId: ti,
+        })) || [],
+      );
+    },
+    [],
+  );
+
   const handleAfterList = useCallback(
     async (records: IRecord[]): Promise<IRecord[]> => {
       await UserTagHandler.get<ITag, IUserModified>(
@@ -129,27 +176,21 @@ export default function App(): ReactElement {
     await execute(async () => {
       await Promise.all([
         UserCrudy.save({
-          id: 1,
           name: "User Number 1",
         }),
         UserCrudy.save({
-          id: 2,
           name: "User Number 2",
         }),
         UserCrudy.save({
-          id: 3,
           name: "User Number 3",
         }),
         TagCrudy.save({
-          id: 1,
           name: "Tag 1",
         }),
         TagCrudy.save({
-          id: 2,
           name: "Tag 2",
         }),
         TagCrudy.save({
-          id: 3,
           name: "Tag 3",
         }),
         UserTagHandler.save([
@@ -180,29 +221,152 @@ export default function App(): ReactElement {
         ]),
       ]);
     });
-    emitter.dispatchEvent("reload");
+    emitter.User.dispatchEvent("reload");
   }, [emitter, execute]);
 
+  const menus = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "Tag",
+        label: "Tag",
+        onClick: () => {
+          emitter.Tag.dispatchEvent("open");
+        },
+      },
+    ],
+    [emitter],
+  );
+
   return (
-    <CrudyTable<IRecord, ISearchParams>
-      name="User"
-      crudy={UserCrudy}
-      emitter={emitter}
-      columns={columns}
-      searchParams={searchParams}
-      titleSearchField="like_name"
-      afterListed={handleAfterList}
-      titleExtra={
-        <>
-          <Button loading={loading} onClick={handleInitTestData}>
-            Init Test Data
-          </Button>
-        </>
-      }
-    >
-      <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-        <Input maxLength={200} placeholder="Name" />
-      </Form.Item>
-    </CrudyTable>
+    <div className={styles.wrapper}>
+      <CrudyTable<IRecord, ISearchParams>
+        name="User"
+        crudy={UserCrudy}
+        emitter={emitter.User}
+        columns={columns}
+        searchParams={searchParams}
+        titleSearchField="like_name"
+        afterListed={handleAfterList}
+        beforeSave={handleBeforeSave}
+        afterSaved={handleAfterSaved}
+        titleExtra={
+          <>
+            <Button loading={loading} onClick={handleInitTestData}>
+              Init Test Data
+            </Button>
+            <Divider type="vertical" />
+            <Dropdown menu={{ items: menus }}>
+              <Button>
+                <MoreOutlined />
+              </Button>
+            </Dropdown>
+            <div style={{ display: "none" }}>
+              <TagCrudyButton emitter={emitter.Tag} />
+            </div>
+          </>
+        }
+      >
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Input maxLength={200} placeholder="Name" />
+        </Form.Item>
+        <Form.Item name="_tagIds" label="Tags" rules={[{ required: true }]}>
+          <TagSelector mode="multiple" />
+        </Form.Item>
+      </CrudyTable>
+      <Dropdown className={styles.fixedMenu} menu={{ items: menus }}>
+        <Button>
+          <MoreOutlined />
+        </Button>
+      </Dropdown>
+    </div>
   );
 }
+
+// region Tag
+
+function TagCrudyButton(props: Partial<ICrudyButtonProps<ITag>>): ReactElement {
+  const [searchParams] = useState<ISearchParams>(() => ({
+    ...BaseSearchParams,
+    sortByPriorityThenUpdatedAt: true,
+  }));
+
+  const columns = useMemo<TableColumnsType<IRecord>>(
+    () => [
+      {
+        title: "id",
+        dataIndex: "id",
+        width: 50,
+      },
+      {
+        title: "Priority",
+        dataIndex: "priority",
+      },
+      {
+        title: "Name",
+        dataIndex: "name",
+      },
+      {
+        title: "Created At",
+        dataIndex: "createdAt",
+        render: asDefaultPattern,
+      },
+      {
+        title: "Updated At",
+        dataIndex: "updatedAt",
+        render: asDefaultPattern,
+      },
+    ],
+    [],
+  );
+
+  return (
+    <CrudyButton<IRecord, ISearchParams>
+      name="Tag"
+      titleSearchField="like_name"
+      columns={columns}
+      crudy={TagCrudy}
+      searchParams={searchParams}
+      {...props}
+    >
+      <Form.Item name="priority" label="Priority">
+        <InputNumber
+          precision={0}
+          step={1}
+          min={Number.MIN_SAFE_INTEGER}
+          max={Number.MAX_SAFE_INTEGER}
+          placeholder="Priority"
+        />
+      </Form.Item>
+
+      <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+        <Input maxLength={50} placeholder="Name" />
+      </Form.Item>
+    </CrudyButton>
+  );
+}
+
+function TagSelector(
+  props: PropsWithChildren<Partial<ICrudySelectorProps<ITag>>>,
+): ReactElement {
+  const sp = useMemo<ISearchParams>(
+    () => ({
+      ...BaseSearchParams,
+      orderBy_priority: "desc",
+    }),
+    [],
+  );
+
+  return (
+    <PagedCrudySelector<IRecord, ISearchParams>
+      placeholder="Select Tag"
+      {...props}
+      crudy={TagCrudy}
+      pageSize={20}
+      searchParams={sp}
+      searchPropName="like_keyword"
+      inKeyword="in_id"
+    />
+  );
+}
+
+// endregion
