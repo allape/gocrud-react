@@ -137,11 +137,11 @@ export interface ICrudyTableProps<
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T, SP>;
   mobileMaxWidth?: number;
-
   /**
    * Delay for `getList` function, for rapid props change
    */
   delay?: Millisecond;
+  loadingFunctions?: UseLoadingReturn;
 }
 
 export default function CrudyTable<
@@ -159,14 +159,15 @@ export default function CrudyTable<
   title,
   crudy,
   className,
-  searchParams: searchParamsFromProps,
+  searchParams: propsSearchParams,
   emitter,
   mobileMaxWidth,
   delay = 50,
+  loadingFunctions: propsLoadingFunctions,
 
   scroll,
   columns,
-  pagination: paginationFromProps,
+  pagination: propsPagination,
   actions,
   actionColumnProps,
   deleteButtonProps,
@@ -192,7 +193,9 @@ export default function CrudyTable<
 }: ICrudyTableProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
 
-  const { loading, isLoading, execute } = useLoading();
+  const loadingFunctions = useLoading();
+  const { loading, isLoading, execute } =
+    propsLoadingFunctions || loadingFunctions;
 
   const getListDelayerTimerRef = useRef(-1);
 
@@ -201,14 +204,14 @@ export default function CrudyTable<
   const defaultPagination = useMemo<ModifiedPagination>(
     () => ({
       ...DefaultPagination,
-      ...paginationFromProps,
+      ...propsPagination,
       className: cls(
         styles.pagination,
         DefaultPagination?.className,
-        paginationFromProps?.className,
+        propsPagination?.className,
       ),
     }),
-    [paginationFromProps],
+    [propsPagination],
   );
 
   const [titleSearch, titleSearchRef, setTitleSearch] = useProxy<string>("");
@@ -505,7 +508,7 @@ export default function CrudyTable<
   // }, [getList]);
 
   useEffect(() => {
-    if (searchParamsFromProps !== searchParamsRef.current) {
+    if (propsSearchParams !== searchParamsRef.current) {
       setPagination((old) => ({
         ...old,
         current: 1,
@@ -514,11 +517,11 @@ export default function CrudyTable<
 
     searchParamsRef.current = {
       ...searchParamsRef.current,
-      ...searchParamsFromProps,
+      ...propsSearchParams,
     } as SP;
 
     getList().then();
-  }, [getList, searchParamsFromProps, setPagination]);
+  }, [getList, propsSearchParams, setPagination]);
 
   useEffect(() => {
     return () => {

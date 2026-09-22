@@ -1,7 +1,11 @@
 import { BaseSearchParams, IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
-import { useLoading } from "@allape/use-loading";
-import { MoreOutlined } from "@ant-design/icons";
+import { useLoading, useProxy } from "@allape/use-loading";
+import {
+  CloudServerOutlined,
+  MoreOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Divider,
@@ -30,7 +34,9 @@ import AntdCrudy, {
   NewCrudyButtonEventEmitter,
   PagedCrudySelector,
 } from "../index.ts";
+import AdvancedSearch from "./component/AdvancedSearch";
 import { asDefaultPattern } from "./helper/datetime.ts";
+import { cut } from "./helper/misc.ts";
 import styles from "./style.module.scss";
 
 export interface IUser extends IBase {
@@ -81,7 +87,8 @@ type IRecord = IUserModified;
 type ISearchParams = IUserSearchParams;
 
 export default function App(): ReactElement {
-  const { loading, execute } = useLoading();
+  const loadingFunctions = useLoading();
+  const { loading, execute } = loadingFunctions;
 
   const emitter = useMemo(
     () => ({
@@ -91,7 +98,7 @@ export default function App(): ReactElement {
     [],
   );
 
-  const [searchParams /*setSearchParams*/] = useState<ISearchParams>(() => ({
+  const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
     ...BaseSearchParams,
     sortByPriorityThenUpdatedAt: true,
   }));
@@ -237,6 +244,39 @@ export default function App(): ReactElement {
     [emitter],
   );
 
+  const [advancedSearchValue, advancedSearchValueRef, setAdvancedSearchValue] =
+    useProxy<string[]>([]);
+
+  const searchableFields = useMemo<
+    Partial<Record<keyof ISearchParams, string[]>>
+  >(
+    () => ({
+      name: [],
+      like_name: [],
+      deleted: ["true", "false"],
+    }),
+    [],
+  );
+
+  const handleSearch = useCallback(() => {
+    const sv: Record<string, string> = {};
+    advancedSearchValueRef.current.forEach((v) => {
+      const [name, value] = cut(v);
+      sv[name] = value;
+    });
+    setSearchParams((old) => {
+      const sp: ISearchParams = { ...old };
+      Object.keys(searchableFields).forEach((key) => {
+        sp[key as keyof ISearchParams] = undefined;
+      });
+      sp.deleted = false;
+      return {
+        ...sp,
+        ...sv,
+      };
+    });
+  }, [advancedSearchValueRef, searchableFields]);
+
   return (
     <div className={styles.wrapper}>
       <CrudyTable<IRecord, ISearchParams>
@@ -245,13 +285,34 @@ export default function App(): ReactElement {
         emitter={emitter.User}
         columns={columns}
         searchParams={searchParams}
-        titleSearchField="like_name"
         afterListed={handleAfterList}
         beforeSave={handleBeforeSave}
         afterSaved={handleAfterSaved}
+        loadingFunctions={loadingFunctions}
         titleExtra={
           <>
-            <Button loading={loading} onClick={handleInitTestData}>
+            <AdvancedSearch
+              strict
+              placeholder="Advanced Search"
+              fields={searchableFields}
+              value={advancedSearchValue}
+              onChange={setAdvancedSearchValue}
+              onMaskedEnter={handleSearch}
+            />
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              loading={loading}
+              onClick={handleSearch}
+            >
+              Search
+            </Button>
+            <Divider type="vertical" />
+            <Button
+              icon={<CloudServerOutlined />}
+              loading={loading}
+              onClick={handleInitTestData}
+            >
               Init Test Data
             </Button>
             <Divider type="vertical" />

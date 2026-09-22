@@ -35,7 +35,7 @@ export default function CrudyButton<
   emitter = NewCrudyButtonEventEmitter<T, SP>(),
   buttonProps,
   modalProps,
-  searchParams: searchParamsFromProps,
+  searchParams: propsSearchParams,
   ...props
 }: ICrudyButtonProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
@@ -47,22 +47,19 @@ export default function CrudyButton<
    * Therefore, we need to use searchParams as well
    */
   const [searchParams, setSearchParams] = useState<SP | undefined>(
-    () => searchParamsFromProps,
+    () => propsSearchParams,
   );
 
   useEffect(() => {
-    if (
-      !searchParamsFromProps ||
-      Object.keys(searchParamsFromProps).length === 0
-    ) {
+    if (!propsSearchParams || Object.keys(propsSearchParams).length === 0) {
       return;
     }
 
     setSearchParams((o) => ({
       ...o,
-      ...searchParamsFromProps,
+      ...propsSearchParams,
     }));
-  }, [searchParamsFromProps]);
+  }, [propsSearchParams]);
 
   const openTable = useCallback(
     (e: EEEvent<"open", SP | undefined>) => {
