@@ -151,7 +151,7 @@ export default function CrudyTable<
   reloadable = true,
   creatable = true,
   editable = true,
-  duplicatable = true,
+  duplicatable = false,
   deletable = true,
   pageable = true,
 
