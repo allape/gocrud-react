@@ -27,6 +27,7 @@ import {
 import cls from "classnames";
 import { t } from "i18next";
 import React, {
+  Key,
   useCallback,
   useEffect,
   useMemo,
@@ -41,6 +42,7 @@ import {
 } from "../../config/antd.ts";
 import { Millisecond } from "../../config/misc.ts";
 import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
+import { newSet } from "../../helper/array.ts";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import { FalseToStop, Promisable } from "../../helper/misc.ts";
 import { Size, useSize } from "../../hook/useMobile.ts";
@@ -125,11 +127,28 @@ export interface ICard<SP extends IBaseSearchParams = IBaseSearchParams> {
   onTitleSearch?: (searchParams: SP) => Promisable<SP>;
 }
 
+export interface IFormControllerProps<T extends IBase = IBase> {
+  value?: T["id"][];
+  /**
+   * Table will display checkboxes when {@link onChange} is not undefined
+   * @param value All selected ids
+   * @param partialRecords This param only contains the records in current page
+   *          not all records compares to {@link value}
+   */
+  onChange?: (value: T["id"][], partialRecords: T[]) => void;
+}
+
 export interface ICrudyTableProps<
   T extends IBase = IBase,
   SP extends IBaseSearchParams = IBaseSearchParams,
 >
-  extends ISwitch, IForm<T>, IFormEvent<T>, ITable<T>, ICard<SP> {
+  extends
+    ISwitch,
+    IForm<T>,
+    IFormEvent<T>,
+    ITable<T>,
+    ICard<SP>,
+    IFormControllerProps<T> {
   name: string;
   title?: string;
   crudy?: AntdCrudy<T, SP>;
@@ -190,6 +209,9 @@ export default function CrudyTable<
   afterSaved,
   afterListed,
   onDelete: _handleDelete,
+
+  value: propsValue,
+  onChange,
 }: ICrudyTableProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
 
@@ -558,6 +580,29 @@ export default function CrudyTable<
     [getList, onTitleSearch, setPagination, titleSearchField, titleSearchRef],
   );
 
+  const [value, valueRef, setValue] = useProxy<
+    Exclude<IFormControllerProps["value"], undefined>
+  >([]);
+
+  const rowSelection = useMemo<
+    Exclude<TableProps<T>["rowSelection"], undefined>
+  >(
+    () => ({
+      selectedRowKeys: value,
+      onChange: (selectedRowKeys: Key[], selectedRows: T[]) => {
+        onChange?.(
+          newSet([...valueRef.current, ...(selectedRowKeys as T["id"][])]),
+          selectedRows,
+        );
+      },
+    }),
+    [onChange, value, valueRef],
+  );
+
+  useEffect(() => {
+    setValue(propsValue || []);
+  }, [propsValue, setValue]);
+
   return (
     <>
       <Card
@@ -622,6 +667,7 @@ export default function CrudyTable<
           onChange={handleChange}
           scroll={scroll}
           size={size}
+          rowSelection={rowSelection}
           {...tableProps}
         />
       </Card>

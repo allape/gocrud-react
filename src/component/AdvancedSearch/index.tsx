@@ -8,6 +8,7 @@ import {
   useEffect,
   useMemo,
 } from "react";
+import { newSet } from "../../helper/array.ts";
 import { cut } from "../../helper/misc.ts";
 
 export interface IAdvancedSearchProps extends Exclude<
@@ -78,7 +79,7 @@ export default function AdvancedSearch({
           return;
         }
       }
-      onChange?.(Array.from(new Set([...valueRef.current, v])));
+      onChange?.(Array.from(newSet([...valueRef.current, v])));
       setSearchValue("");
     },
     [fields, onChange, separator, setSearchValue, strict, valueRef],

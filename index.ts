@@ -78,6 +78,7 @@ export { default as useScrollableBodyModalProps } from "./src/hook/useScrollable
 export * as config from "./src/config";
 
 export * from "./src/helper/antd";
+export * from "./src/helper/array.ts";
 export * from "./src/helper/datetime";
 export {
   default as EventEmitter,
@@ -89,4 +90,4 @@ export {
 
 export * as i18n from "./src/i18n";
 
-export { type FalseToStop, type Promisable } from "./src/helper/misc.ts";
+export * from "./src/helper/misc.ts";
