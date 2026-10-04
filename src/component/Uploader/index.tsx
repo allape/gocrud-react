@@ -2,7 +2,7 @@ import { GetFunc, XFileDigestHeader } from "@allape/gocrud";
 import { sha256ToHex } from "@allape/gocrud/src/sha256.ts";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload, UploadFile, UploadProps } from "antd";
-import { RcFile } from "rc-upload/lib/interface";
+import { RcFile } from "antd/es/upload";
 import React, { useEffect, useState } from "react";
 import { antdupload } from "../../api/antd.tsx";
 
@@ -101,30 +101,35 @@ export default function Uploader({
   };
 
   useEffect(() => {
-    if (!value) {
-      setFileList([]);
-      return;
-    }
+    const id = setTimeout(() => {
+      if (!value) {
+        setFileList([]);
+        return;
+      }
 
-    if (Array.isArray(value)) {
-      setFileList(
-        value.map((v) => ({
-          uid: v,
-          name: v,
-          url: `${serverURL}${v}`,
-          response: v,
-        })),
-      );
-    } else {
-      setFileList([
-        {
-          uid: value,
-          name: value,
-          url: `${serverURL}${value}`,
-          response: value,
-        },
-      ]);
-    }
+      if (Array.isArray(value)) {
+        setFileList(
+          value.map((v) => ({
+            uid: v,
+            name: v,
+            url: `${serverURL}${v}`,
+            response: v,
+          })),
+        );
+      } else {
+        setFileList([
+          {
+            uid: value,
+            name: value,
+            url: `${serverURL}${value}`,
+            response: value,
+          },
+        ]);
+      }
+    });
+    return () => {
+      clearTimeout(id);
+    };
   }, [serverURL, value]);
 
   return (
@@ -141,7 +146,7 @@ export default function Uploader({
       </Upload>
       {previewImage && (
         <Image
-          wrapperStyle={{ display: "none" }}
+          styles={{ root: { display: "none" } }}
           preview={{
             visible: previewOpen,
             onVisibleChange: (visible) => setPreviewOpen(visible),

@@ -1,9 +1,14 @@
 import { IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
-import { Select, Spin } from "antd";
-import { DefaultOptionType } from "rc-select/lib/Select";
-import React, { PropsWithChildren, useCallback, useState } from "react";
+import { Select, SelectProps, Spin } from "antd";
+import { DefaultOptionType } from "antd/es/select/index";
+import React, {
+  PropsWithChildren,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import ChildrenWrapper from "./ChildrenWrapper.tsx";
 import {
   ICrudySelectorBaseProps,
@@ -48,15 +53,21 @@ export default function CrudySelector<
 
   useEmitter(buildOptions, emitter, setOptions, getList);
 
+  const showSearch = useMemo<SelectProps["showSearch"]>(
+    () => ({
+      optionFilterProp: "label",
+      autoClearSearchValue: true,
+    }),
+    [],
+  );
+
   return (
     <Spin spinning={loading}>
       <ChildrenWrapper>{children}</ChildrenWrapper>
       <Select
         {...selectorProps}
         value={value}
-        optionFilterProp="label"
-        showSearch
-        autoClearSearchValue
+        showSearch={showSearch}
         options={options}
       />
     </Spin>

@@ -210,7 +210,7 @@ export default function CrudyTable<
   afterListed,
   onDelete: _handleDelete,
 
-  value: propsValue,
+  value,
   onChange,
 }: ICrudyTableProps<T, SP>): React.ReactElement {
   const { t } = useTranslation();
@@ -580,29 +580,6 @@ export default function CrudyTable<
     [getList, onTitleSearch, setPagination, titleSearchField, titleSearchRef],
   );
 
-  const [value, valueRef, setValue] = useProxy<
-    Exclude<IFormControllerProps["value"], undefined>
-  >([]);
-
-  const rowSelection = useMemo<
-    Exclude<TableProps<T>["rowSelection"], undefined>
-  >(
-    () => ({
-      selectedRowKeys: value,
-      onChange: (selectedRowKeys: Key[], selectedRows: T[]) => {
-        onChange?.(
-          newSet([...valueRef.current, ...(selectedRowKeys as T["id"][])]),
-          selectedRows,
-        );
-      },
-    }),
-    [onChange, value, valueRef],
-  );
-
-  useEffect(() => {
-    setValue(propsValue || []);
-  }, [propsValue, setValue]);
-
   return (
     <>
       <Card
@@ -667,7 +644,25 @@ export default function CrudyTable<
           onChange={handleChange}
           scroll={scroll}
           size={size}
-          rowSelection={rowSelection}
+          rowSelection={
+            onChange
+              ? {
+                  selectedRowKeys: value,
+                  onChange: (selectedRowKeys: Key[], selectedRows: T[]) => {
+                    let newValue = value || [];
+                    // remove all ids in current page
+                    newValue = newValue.filter(
+                      (id) =>
+                        list.findIndex((record) => record.id === id) === -1,
+                    );
+                    onChange?.(
+                      newSet([...(selectedRowKeys as T["id"][]), ...newValue]),
+                      selectedRows,
+                    );
+                  },
+                }
+              : undefined
+          }
           {...tableProps}
         />
       </Card>

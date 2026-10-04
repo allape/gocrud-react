@@ -1,16 +1,17 @@
-/**
- * @param {IGoCrudVitePluginOptions=} options
- * @returns {import('vite').Plugin}
- */
+import type { Plugin } from "vite";
+
+export interface IGoCrudVitePluginOptions {
+  appendOptimizeDeps?: boolean;
+}
+
 export default function GoCrudVitePlugin(
-  options = {
-    appendOptimizeDeps: true,
-  },
-) {
+  options?: IGoCrudVitePluginOptions,
+): Plugin {
+  const { appendOptimizeDeps } = options || {};
   return {
     name: "GoCrudVitePlugin",
     config: (config, env) => {
-      if (options.appendOptimizeDeps && env.command === "serve") {
+      if (appendOptimizeDeps !== false && env.command === "serve") {
         return {
           optimizeDeps: {
             include: [
@@ -26,11 +27,7 @@ export default function GoCrudVitePlugin(
   };
 }
 
-/**
- * Use single instance of i18next and react-i18next across the app
- * @returns {import('vite').Plugin}
- */
-export function i18nextPlugin() {
+export function i18nextPlugin(): Plugin {
   return {
     config: () => {
       return {

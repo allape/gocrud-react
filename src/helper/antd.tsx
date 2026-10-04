@@ -1,5 +1,4 @@
-import { FormProps, SelectProps, TableProps } from "antd";
-import type { FormInstance } from "rc-field-form/es/interface";
+import { FormInstance, FormProps, SelectProps, TableProps } from "antd";
 
 export type RecursivePartial<T> = Parameters<
   FormInstance<T>["setFieldsValue"]

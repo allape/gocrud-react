@@ -22,6 +22,10 @@ const Default = {
     clickToReview: "Click to review",
     totalRender: "{{from}}-{{to}} of {{total}}",
     copied: "Copied",
+
+    selector: {
+      total: "Total: {{count}}",
+    },
   },
 };
 
@@ -50,6 +54,10 @@ export const ZHCN: typeof Default = {
     clickToReview: "点击查看详情",
     totalRender: "{{from}}-{{to}} 共 {{total}} 条",
     copied: "已复制",
+
+    selector: {
+      total: "共计 {{count}} 条",
+    },
   },
 };
 

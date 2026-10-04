@@ -27,6 +27,7 @@ export interface IAdvancedSearchProps extends Exclude<
   | "onClear"
   | "searchValue"
   | "onSearch"
+  | "showSearch"
 > {
   fields: Record<string, string[]>;
   extraOptions?: string[];
@@ -198,7 +199,6 @@ export default function AdvancedSearch({
   return (
     <Select
       allowClear
-      showSearch
       {...props}
       mode="tags"
       options={options}
@@ -210,8 +210,10 @@ export default function AdvancedSearch({
       onFocus={handleFocus}
       onBlur={handleBlur}
       onClear={handleClear}
-      searchValue={searchValue}
-      onSearch={handleSearch}
+      showSearch={{
+        searchValue: searchValue,
+        onSearch: handleSearch,
+      }}
     />
   );
 }

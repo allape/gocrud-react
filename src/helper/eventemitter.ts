@@ -9,11 +9,11 @@ export function DefaultChannel(): EventTarget {
   } catch {
     /* empty */
   }
-  try {
-    return global;
-  } catch {
-    /* empty */
-  }
+  // try {
+  //   return global;
+  // } catch {
+  //   /* empty */
+  // }
 
   throw new Error("No global channel found");
 }

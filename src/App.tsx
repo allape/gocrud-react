@@ -34,7 +34,12 @@ import AntdCrudy, {
   NewCrudyButtonEventEmitter,
   PagedCrudySelector,
 } from "../index.ts";
+import AdvancedCrudySelector, {
+  IAdvancedCrudySelectorProps,
+} from "./component/AdvancedCrudySelector";
+import { ISelectionListProps } from "./component/AdvancedCrudySelector/SelectionList.tsx";
 import AdvancedSearch from "./component/AdvancedSearch";
+import { IUseProps } from "./component/CrudyTable/useProps.tsx";
 import { asDefaultPattern } from "./helper/datetime.ts";
 import { cut } from "./helper/misc.ts";
 import styles from "./style.module.scss";
@@ -200,6 +205,11 @@ export default function App(): ReactElement {
         TagCrudy.save({
           name: "Tag 3",
         }),
+        ...new Array(500).fill(1).map((_, i) =>
+          TagCrudy.save({
+            name: `tag:${i}`,
+          }),
+        ),
         UserTagHandler.save([
           {
             userId: 1,
@@ -307,7 +317,7 @@ export default function App(): ReactElement {
             >
               Search
             </Button>
-            <Divider type="vertical" />
+            <Divider orientation="vertical" />
             <Button
               icon={<CloudServerOutlined />}
               loading={loading}
@@ -315,7 +325,7 @@ export default function App(): ReactElement {
             >
               Init Test Data
             </Button>
-            <Divider type="vertical" />
+            <Divider orientation="vertical" />
             <Dropdown menu={{ items: menus }}>
               <Button>
                 <MoreOutlined />
@@ -333,9 +343,12 @@ export default function App(): ReactElement {
         <Form.Item name="_tagIds" label="Tags" rules={[{ required: true }]}>
           <TagSelector mode="multiple" />
         </Form.Item>
+        <Form.Item name="_tagIds" label="Tags" rules={[{ required: true }]}>
+          <TagAdvancedSelector />
+        </Form.Item>
       </CrudyTable>
-      <Dropdown className={styles.fixedMenu} menu={{ items: menus }}>
-        <Button>
+      <Dropdown menu={{ items: menus }}>
+        <Button className={styles.fixedMenu}>
           <MoreOutlined />
         </Button>
       </Dropdown>
@@ -345,8 +358,11 @@ export default function App(): ReactElement {
 
 // region Tag
 
-function TagCrudyButton(props: Partial<ICrudyButtonProps<ITag>>): ReactElement {
-  const [searchParams] = useState<ISearchParams>(() => ({
+function useTagTableProps(): Omit<
+  IUseProps<ITag, ITagSearchParams>,
+  "emitter"
+> {
+  const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
     ...BaseSearchParams,
     sortByPriorityThenUpdatedAt: true,
   }));
@@ -380,29 +396,62 @@ function TagCrudyButton(props: Partial<ICrudyButtonProps<ITag>>): ReactElement {
     [],
   );
 
-  return (
-    <CrudyButton<IRecord, ISearchParams>
-      name="Tag"
-      titleSearchField="like_name"
-      columns={columns}
-      crudy={TagCrudy}
-      searchParams={searchParams}
-      {...props}
-    >
-      <Form.Item name="priority" label="Priority">
-        <InputNumber
-          precision={0}
-          step={1}
-          min={Number.MIN_SAFE_INTEGER}
-          max={Number.MAX_SAFE_INTEGER}
-          placeholder="Priority"
-        />
-      </Form.Item>
+  return {
+    searchParams,
+    setSearchParams,
+    columns,
+    name: "Tag",
+    titleSearchField: "like_name",
+    crudy: TagCrudy,
+    children: (
+      <>
+        <Form.Item name="priority" label="Priority">
+          <InputNumber
+            precision={0}
+            step={1}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
+            placeholder="Priority"
+          />
+        </Form.Item>
 
-      <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-        <Input maxLength={50} placeholder="Name" />
-      </Form.Item>
-    </CrudyButton>
+        <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Input maxLength={50} placeholder="Name" />
+        </Form.Item>
+      </>
+    ),
+  };
+}
+
+function TagCrudyButton(props: Partial<ICrudyButtonProps<ITag>>): ReactElement {
+  const innerProps = useTagTableProps();
+  return <CrudyButton<ITag, ITagSearchParams> {...innerProps} {...props} />;
+}
+
+function TagAdvancedSelector(
+  props: Partial<IAdvancedCrudySelectorProps<ITag, ITagSearchParams>>,
+): ReactElement {
+  const tableProps = useTagTableProps();
+  const listProps = useMemo<ISelectionListProps<ITag>>(
+    () => ({
+      // height: 400,
+      // itemRender: (record) => <span>{record.name}</span>,
+    }),
+    [],
+  );
+  return (
+    <AdvancedCrudySelector<ITag, ITagSearchParams>
+      {...props}
+      // extraFilterFields={["name"]}
+      listProps={listProps}
+      tableProps={{
+        ...tableProps,
+        scroll: {
+          x: true,
+          y: "calc(100vh - 300px)",
+        },
+      }}
+    />
   );
 }
 

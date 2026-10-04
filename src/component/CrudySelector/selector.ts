@@ -1,6 +1,6 @@
 import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { SelectProps } from "antd";
-import { DefaultOptionType } from "rc-select/lib/Select";
+import { DefaultOptionType } from "antd/es/select/index";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 import AntdCrudy from "../../api/antd.tsx";
 import { ILV } from "../../helper/antd.tsx";
@@ -26,7 +26,7 @@ export function BuildOptions<
 export interface ICrudySelectorBaseProps<
   T extends IBase,
   SearchParams extends IBaseSearchParams = IBaseSearchParams,
-> extends Omit<SelectProps, "children" | "options"> {
+> extends Omit<SelectProps, "children" | "options" | "showSearch"> {
   crudy: AntdCrudy<T, SearchParams>;
   buildOptions?: typeof BuildOptions<T>;
   labelPropName?: keyof T | string;

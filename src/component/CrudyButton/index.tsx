@@ -55,10 +55,15 @@ export default function CrudyButton<
       return;
     }
 
-    setSearchParams((o) => ({
-      ...o,
-      ...propsSearchParams,
-    }));
+    const id = setTimeout(() => {
+      setSearchParams((o) => ({
+        ...o,
+        ...propsSearchParams,
+      }));
+    });
+    return () => {
+      clearTimeout(id);
+    };
   }, [propsSearchParams]);
 
   const openTable = useCallback(

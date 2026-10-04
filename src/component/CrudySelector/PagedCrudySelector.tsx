@@ -1,12 +1,13 @@
 import { IBaseSearchParams } from "@allape/gocrud";
 import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
-import { Select, Spin } from "antd";
-import { DefaultOptionType } from "rc-select/lib/Select";
+import { Select, SelectProps, Spin } from "antd";
+import { DefaultOptionType } from "antd/es/select/index";
 import React, {
   PropsWithChildren,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -162,16 +163,22 @@ export default function PagedCrudySelector<
     [getList, searchDelay],
   );
 
+  const showSearch = useMemo<SelectProps["showSearch"]>(
+    () => ({
+      onSearch: handleSearch,
+      filterOption: false,
+      autoClearSearchValue: true,
+    }),
+    [handleSearch],
+  );
+
   return (
     <Spin spinning={loading}>
       <ChildrenWrapper>{children}</ChildrenWrapper>
       <Select
         {...selectorProps}
         value={value}
-        onSearch={handleSearch}
-        filterOption={false}
-        showSearch
-        autoClearSearchValue
+        showSearch={showSearch}
         options={options}
       />
     </Spin>
