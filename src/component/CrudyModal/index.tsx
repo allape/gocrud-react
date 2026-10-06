@@ -1,48 +1,49 @@
 import { Modal, ModalProps } from "antd";
-import React, { CSSProperties, useCallback, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 import { AntdModalInitZIndex } from "../../config/antd.ts";
 import useMobile from "../../hook/useMobile.ts";
 
 let ModalOpenCount = 0;
 let ModalOpenAccumulatedCount = 0;
 
+function NowIndex(): number {
+  return AntdModalInitZIndex + ModalOpenAccumulatedCount * 2;
+}
+
 export type ModalStyles = { body?: CSSProperties };
 
 export default function CrudyModal({
   children,
   open,
-  afterOpenChange,
   styles,
   ...props
 }: ModalProps): React.ReactElement {
   const isMobile = useMobile();
 
-  const [zIndex, setZIndex] = useState<number>(AntdModalInitZIndex);
+  const [zIndex, setZIndex] = useState<number>(NowIndex);
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      afterOpenChange?.(open);
-      if (open) {
-        ModalOpenCount += 1;
-        ModalOpenAccumulatedCount += 1;
-        setZIndex(AntdModalInitZIndex + ModalOpenAccumulatedCount);
-      } else {
-        ModalOpenCount -= 1;
-        if (ModalOpenCount <= 0) {
-          ModalOpenCount = 0;
-          ModalOpenAccumulatedCount = 0;
-        }
+  useEffect(() => {
+    if (open) {
+      ModalOpenCount += 1;
+      ModalOpenAccumulatedCount += 1;
+      const id = setTimeout(() => setZIndex(NowIndex));
+      return (): void => {
+        clearTimeout(id);
+      };
+    } else {
+      ModalOpenCount -= 1;
+      if (ModalOpenCount <= 0) {
+        ModalOpenCount = 0;
+        ModalOpenAccumulatedCount = 0;
       }
-    },
-    [afterOpenChange],
-  );
+    }
+  }, [open]);
 
   return (
     <Modal
       open={open}
       zIndex={zIndex}
       {...props}
-      afterOpenChange={handleOpenChange}
       styles={{
         ...styles,
         body: {
