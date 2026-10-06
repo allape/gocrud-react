@@ -5,15 +5,7 @@ import {
   ExportOutlined,
   ShrinkOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Divider,
-  Empty,
-  ModalProps,
-  Spin,
-  Splitter,
-  SplitterProps,
-} from "antd";
+import { Button, Empty, ModalProps, Spin, Splitter, SplitterProps } from "antd";
 import {
   Dispatch,
   ReactElement,
@@ -277,7 +269,7 @@ export default function AdvancedCrudySelector<
           ),
           extra: (
             <>
-              <Divider orientation="vertical" />
+              {/*<Divider orientation="vertical" />*/}
               <Button
                 type="primary"
                 danger={open}

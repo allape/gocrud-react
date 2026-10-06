@@ -81,8 +81,6 @@ export default function Ellipsis({
   return (
     <ClickToReview
       tooltip={i18n.ot("gocrud.clickToReview", Default.gocrud.clickToReview)}
-      title={i18n.ot("gocrud.viewer", Default.gocrud.viewer)}
-      okText={i18n.ot("gocrud.close", Default.gocrud.close)}
       content={complete}
     >
       {partial}

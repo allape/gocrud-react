@@ -3,9 +3,7 @@ import { PropsWithChildren, ReactElement, ReactNode } from "react";
 
 export interface IClickToReviewProps {
   tooltip?: ReactNode;
-  title?: ReactNode;
   content?: ReactNode;
-  okText?: ReactNode;
   modalProps?: ModalFuncProps;
 }
 
@@ -13,8 +11,6 @@ export default function ClickToReview({
   children,
   content,
   tooltip,
-  title,
-  okText,
   modalProps,
 }: PropsWithChildren<IClickToReviewProps>): ReactElement {
   const app = App.useApp();
@@ -24,13 +20,26 @@ export default function ClickToReview({
         style={{ cursor: "pointer" }}
         onClick={() =>
           (app?.modal || Modal).info({
-            title: title,
+            icon: null,
             content: content,
-            width: "calc(100vw - 20px)",
+            width: "100%",
             closable: true,
-            maskClosable: true,
+            mask: {
+              closable: true,
+            },
             style: { top: "10px" },
-            okText,
+            styles: {
+              container: {
+                padding: "20px",
+              },
+              body: {
+                padding: "0",
+                maxHeight: "calc(100dvh - 60px)",
+                overflowY: "auto",
+                overflowX: "hidden",
+              },
+            },
+            footer: null,
             ...modalProps,
           })
         }

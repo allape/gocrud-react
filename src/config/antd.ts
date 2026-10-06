@@ -14,7 +14,10 @@ export const DefaultFormModalProps: ModalProps = {
   width: 800,
 };
 
-export const DefaultFormLayoutProps: Pick<FormProps, "labelCol" | "wrapperCol"> = {
+export const DefaultFormLayoutProps: Pick<
+  FormProps,
+  "labelCol" | "wrapperCol"
+> = {
   labelCol: { span: 24 },
   wrapperCol: { span: 24 },
 };

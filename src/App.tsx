@@ -29,6 +29,7 @@ import AntdCrudy, {
   AntdM2MConnectorHandler,
   CrudyButton,
   CrudyTable,
+  Ellipsis,
   ICrudyButtonProps,
   ICrudySelectorProps,
   NewCrudyButtonEventEmitter,
@@ -44,8 +45,12 @@ import { asDefaultPattern } from "./helper/datetime.ts";
 import { cut } from "./helper/misc.ts";
 import styles from "./style.module.scss";
 
+import Comments from "./testdata/comments.json";
+
 export interface IUser extends IBase {
   name: string;
+  age: number;
+  description: string;
 }
 
 export interface IUserSearchParams extends IBaseSearchParams {
@@ -119,6 +124,10 @@ export default function App(): ReactElement {
         dataIndex: "name",
       },
       {
+        title: "Age",
+        dataIndex: "age",
+      },
+      {
         title: "Tags",
         dataIndex: "_tags",
         render: (tags?: ITag[]) => {
@@ -132,6 +141,11 @@ export default function App(): ReactElement {
             </>
           );
         },
+      },
+      {
+        title: "Description",
+        dataIndex: "description",
+        render: (v) => <Ellipsis>{v}</Ellipsis>,
       },
       {
         title: "Created At",
@@ -189,12 +203,16 @@ export default function App(): ReactElement {
       await Promise.all([
         UserCrudy.save({
           name: "User Number 1",
+          age: 18,
         }),
         UserCrudy.save({
           name: "User Number 2",
+          age: 19,
         }),
         UserCrudy.save({
           name: "User Number 3",
+          age: 20,
+          description: JSON.stringify(Comments, null, 4),
         }),
         TagCrudy.save({
           name: "Tag 1",
@@ -340,10 +358,22 @@ export default function App(): ReactElement {
         <Form.Item name="name" label="Name" rules={[{ required: true }]}>
           <Input maxLength={200} placeholder="Name" />
         </Form.Item>
-        <Form.Item name="_tagIds" label="Tags" rules={[{ required: true }]}>
+        <Form.Item name="age" label="Age">
+          <InputNumber
+            min={0}
+            max={Number.MAX_SAFE_INTEGER}
+            step={1}
+            precision={0}
+            placeholder="Age"
+          />
+        </Form.Item>
+        <Form.Item name="description" label="Description">
+          <Input.TextArea rows={12} placeholder="Description" />
+        </Form.Item>
+        <Form.Item name="_tagIds" label="Tags">
           <TagSelector mode="multiple" />
         </Form.Item>
-        <Form.Item name="_tagIds" label="Tags" rules={[{ required: true }]}>
+        <Form.Item name="_tagIds" label="Tags">
           <TagAdvancedSelector />
         </Form.Item>
       </CrudyTable>
@@ -362,12 +392,12 @@ function useTagTableProps(): Omit<
   IUseProps<ITag, ITagSearchParams>,
   "emitter"
 > {
-  const [searchParams, setSearchParams] = useState<ISearchParams>(() => ({
+  const [searchParams, setSearchParams] = useState<ITagSearchParams>(() => ({
     ...BaseSearchParams,
     sortByPriorityThenUpdatedAt: true,
   }));
 
-  const columns = useMemo<TableColumnsType<IRecord>>(
+  const columns = useMemo<TableColumnsType<ITag>>(
     () => [
       {
         title: "id",
@@ -467,7 +497,7 @@ function TagSelector(
   );
 
   return (
-    <PagedCrudySelector<IRecord, ISearchParams>
+    <PagedCrudySelector<ITag, ITagSearchParams>
       placeholder="Select Tag"
       {...props}
       crudy={TagCrudy}
