@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { Millisecond, Second } from "../../config/misc.ts";
 import { sleep } from "../promise.ts";
-import TitleManager, { ITitleFrame } from "../titlemanager.ts";
+import TitleManager from "../titlemanager.ts";
 
 async function collectTitleSamplesFor(
   s: Second,
@@ -11,7 +11,9 @@ async function collectTitleSamplesFor(
 
   const titleQueue: string[] = [];
   const timerId = setInterval(() => {
-    titleQueue.push(window.document.title);
+    const title = window.document.title;
+    titleQueue.push(title);
+    console.log("Title Sample:", title);
   }, interval);
 
   await sleep(s);
@@ -78,30 +80,68 @@ test("default", async () => {
     "Page But Message",
     TitleManager.PresetPriorities.Message,
     {
-      blinkInterval: 1000,
+      blink: {
+        interval: 100,
+      },
     },
   );
 
-  const [samples, id] = await Promise.all([
-    collectTitleSamplesFor(5),
-    new Promise<ITitleFrame["id"]>((r) => {
-      const id = tm.setTitle(
-        "New Message",
-        TitleManager.PresetPriorities.Message,
-        {
-          blinkInterval: 1000,
-        },
-      );
-      return r(id.id);
-    }),
-  ]);
-
-  tm.unsetTitleById(id);
+  const messageFrame1 = tm.setTitle(
+    "New Message",
+    TitleManager.PresetPriorities.Message,
+    {
+      blink: {
+        interval: 100,
+      },
+    },
+  );
+  const samples = await collectTitleSamplesFor(2, 10);
+  tm.unsetTitleById(messageFrame1.id);
 
   expect(samples).contains("New Message");
   expect(samples).contains("Page But Message");
 
-  const noMessageSamples = await collectTitleSamplesFor(5);
+  const noMessageSamples = await collectTitleSamplesFor(2, 10);
   expect(noMessageSamples).not.contains("New Message");
   expect(noMessageSamples).contains("Page But Message");
+
+  tm.removeAllAndSetTitle("App Title", TitleManager.PresetPriorities.App);
+
+  expect(tm.getLastRenderedTitle()).toBe("App Title");
+
+  const messageFrame2 = tm.setTitle(
+    "New Message1",
+    TitleManager.PresetPriorities.Message,
+    {
+      blink: {
+        interval: 100,
+        placeholder: "app-title",
+      },
+    },
+  );
+  const appTitleSamples = await collectTitleSamplesFor(2, 10);
+  tm.unsetTitleById(messageFrame2.id);
+  expect(appTitleSamples).contains("New Message1");
+  expect(appTitleSamples).contains("App Title");
+
+  const scrollFrame1 = tm.setTitle(
+    "Never Gonna Give You Up - Rick Astley",
+    TitleManager.PresetPriorities.Message,
+    {
+      scroll: {
+        interval: 50,
+      },
+    },
+  );
+  const scrollSamples = await collectTitleSamplesFor(3, 10);
+  tm.unsetTitleById(scrollFrame1.id);
+  expect(scrollSamples).contains(
+    "Never Gonna Give You Up - Rick Astley Never Gonna Give You Up - Rick",
+  );
+  expect(scrollSamples).contains(
+    "Gonna Give You Up - Rick Never Gonna Give You Up - Rick Astley Never",
+  );
+  expect(scrollSamples).contains(
+    "Astley Never Gonna Give You Up - Rick Never Gonna Give You Up - Rick",
+  );
 }, 30_000);

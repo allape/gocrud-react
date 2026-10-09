@@ -87,6 +87,8 @@ export {
   DefaultChannel,
   type IOptions,
 } from "./src/helper/eventemitter";
+export * from "./src/helper/promise";
+export * from "./src/helper/titlemanager";
 
 export * as i18n from "./src/i18n";
 
