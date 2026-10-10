@@ -1,26 +1,41 @@
 import cls from "classnames";
-import React, { CSSProperties, PropsWithChildren } from "react";
+import React, {
+  CSSProperties,
+  ForwardedRef,
+  forwardRef,
+  HTMLProps,
+  PropsWithChildren,
+} from "react";
 import styles from "./style.module.scss";
 
 export interface IFlexProps
-  extends Pick<
-    CSSProperties,
-    "alignItems" | "justifyContent" | "gap" | "flexDirection" | "flexWrap"
-  > {
-  className?: string;
-}
+  extends
+    Pick<
+      CSSProperties,
+      "alignItems" | "justifyContent" | "gap" | "flexDirection" | "flexWrap"
+    >,
+    HTMLProps<HTMLDivElement> {}
 
-export default function Flex({
-  children,
-  className,
-  alignItems = "center",
-  justifyContent = "center",
-  gap = "10px",
-  flexDirection,
-  flexWrap,
-}: PropsWithChildren<IFlexProps>): React.ReactElement {
+function Flex(
+  {
+    alignItems = "center",
+    justifyContent = "center",
+    gap = "10px",
+    flexDirection,
+    flexWrap,
+
+    className,
+    style,
+
+    children,
+
+    ...props
+  }: PropsWithChildren<IFlexProps>,
+  ref: ForwardedRef<HTMLDivElement>,
+): React.ReactElement {
   return (
     <div
+      ref={ref}
       className={cls(styles.wrapper, className)}
       style={{
         alignItems,
@@ -28,9 +43,13 @@ export default function Flex({
         gap,
         flexDirection,
         flexWrap,
+        ...style,
       }}
+      {...props}
     >
       {children}
     </div>
   );
 }
+
+export default forwardRef<HTMLDivElement, IFlexProps>(Flex);

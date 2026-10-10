@@ -1,4 +1,5 @@
-import { IBase } from "@allape/gocrud";
+import { i18n, IBase } from "@allape/gocrud";
+import { useProxy } from "@allape/use-loading";
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
@@ -32,20 +33,35 @@ import {
   Dropdown,
   DropdownProps,
   Empty,
-  Flex,
+  Input,
   Listy,
   ListyProps,
   MenuProps,
 } from "antd";
 import cls from "classnames";
-import { CSSProperties, ReactElement, ReactNode, useMemo } from "react";
+import {
+  ChangeEvent,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useTranslation } from "react-i18next";
+import usePropAsRef from "../../hook/usePropAsRef.ts";
+import Default from "../../i18n";
 import { ModalStyles } from "../CrudyModal";
+import Flex from "../Flex";
 import styles from "./style.module.scss";
 
 export type NameableRecord<T extends IBase = IBase> = T & { name?: string };
 
 export interface ISortableItemProps<T extends IBase = IBase> {
   record: T;
+  dimmed?: boolean;
   render?: (record: T) => ReactNode;
   className?: string;
   onToTop?: () => void;
@@ -57,6 +73,7 @@ export interface ISortableItemProps<T extends IBase = IBase> {
 function SortableItem<T extends IBase = IBase>({
   record,
   render,
+  dimmed,
   className,
   onToTop,
   onToBottom,
@@ -115,7 +132,13 @@ function SortableItem<T extends IBase = IBase>({
   }, [onMove, onToBottom, onToTop]);
 
   return (
-    <Flex ref={setNodeRef} style={style} align="center" gap="small">
+    <Flex
+      ref={setNodeRef}
+      className={cls(styles.itemWrapper, dimmed && styles.dimmed)}
+      style={style}
+      alignItems="center"
+      gap="4px"
+    >
       <div className={cls(styles.item, className)}>
         {render?.(record) ||
           `${record.id}: ${(record as NameableRecord<T>).name || ""}`}
@@ -155,6 +178,11 @@ export interface ISelectionListProps<T extends IBase = IBase> extends Omit<
   onChange?: (value: T[]) => void;
   itemRender?: ISortableItemProps<T>["render"];
 
+  /**
+   * ID field will always be available for search
+   */
+  extraFilterFields?: (keyof T)[];
+
   cardProps?: CardProps;
 }
 
@@ -162,9 +190,83 @@ export default function SelectionList<T extends IBase = IBase>({
   value = [],
   onChange,
   itemRender: propsItemRender,
+
+  extraFilterFields: propsExtraFilterFields,
+
   cardProps,
   ...props
 }: ISelectionListProps<T>): ReactElement {
+  const { t } = useTranslation();
+
+  const extraFilterFieldsRef = usePropAsRef(propsExtraFilterFields);
+
+  const searchTimerRef = useRef(-1);
+
+  const [keywords, keywordsRef, setKeywords] = useProxy<string>("");
+
+  const [highlighted, setHighlighted] = useState<T[]>([]);
+
+  const handleSearch = useCallback(() => {
+    clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(() => {
+      const kw = keywordsRef.current.trim();
+
+      if (!kw) {
+        setHighlighted(value);
+        return;
+      }
+
+      const extraFilterFields = extraFilterFieldsRef.current || [];
+
+      setHighlighted(
+        value.filter((record) => {
+          if (`${record.id}` === keywordsRef.current) {
+            return true;
+          }
+
+          for (const field of extraFilterFields) {
+            if (
+              `${record[field]}`.toLowerCase().includes(keywordsRef.current)
+            ) {
+              return true;
+            }
+          }
+
+          return false;
+        }),
+      );
+    }, 200);
+  }, [extraFilterFieldsRef, keywordsRef, value]);
+
+  const handleSearchChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setKeywords(e.target.value.toLowerCase());
+      handleSearch();
+    },
+    [handleSearch, setKeywords],
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 1 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  useEffect(() => {
+    return (): void => {
+      clearTimeout(searchTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]);
+
+  // hooks end
+
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) {
       return;
@@ -180,6 +282,7 @@ export default function SelectionList<T extends IBase = IBase>({
       <SortableItem<T>
         record={record}
         render={propsItemRender}
+        dimmed={!highlighted.find((hl) => hl.id === record.id)}
         onMove={(delta) => {
           let changeToIndex = index + delta;
           if (changeToIndex < 0) {
@@ -203,45 +306,59 @@ export default function SelectionList<T extends IBase = IBase>({
     );
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 1 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
   return (
-    <DndContext
-      id="listy-drag-sorting"
-      sensors={sensors}
-      modifiers={[restrictToVerticalAxis]}
-      onDragEnd={onDragEnd}
-    >
-      <SortableContext
-        items={value.map((i) => i.id)}
-        strategy={verticalListSortingStrategy}
+    <div className={styles.wrapper}>
+      <DndContext
+        id="listy-drag-sorting"
+        sensors={sensors}
+        modifiers={[restrictToVerticalAxis]}
+        onDragEnd={onDragEnd}
       >
-        <Card
-          {...cardProps}
-          styles={{
-            ...cardProps?.styles,
-            body: {
-              ...BodyStyles,
-              ...(cardProps?.styles as ModalStyles)?.body,
-            },
-          }}
+        <SortableContext
+          items={value.map((i) => i.id)}
+          strategy={verticalListSortingStrategy}
         >
-          <Listy<T, T["id"]>
-            rowKey="id"
-            {...props}
-            items={value}
-            itemRender={renderItem}
-          />
-          {value.length === 0 ? <Empty /> : undefined}
-        </Card>
-      </SortableContext>
-    </DndContext>
+          <Card
+            {...cardProps}
+            title={
+              <Flex gap={0}>
+                <Input
+                  type="search"
+                  placeholder={i18n.ot(
+                    "gocrud.selector.total",
+                    Default.gocrud.selector.total,
+                    t,
+                    {
+                      count: value.length,
+                    },
+                  )}
+                  allowClear
+                  value={keywords}
+                  onChange={handleSearchChange}
+                  onBlur={handleSearch}
+                  onPressEnter={handleSearch}
+                />
+                <Divider orientation="vertical" />
+              </Flex>
+            }
+            styles={{
+              ...cardProps?.styles,
+              body: {
+                ...BodyStyles,
+                ...(cardProps?.styles as ModalStyles)?.body,
+              },
+            }}
+          >
+            <Listy<T, T["id"]>
+              rowKey="id"
+              {...props}
+              items={value}
+              itemRender={renderItem}
+            />
+            {value.length === 0 ? <Empty /> : undefined}
+          </Card>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }

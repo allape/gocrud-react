@@ -1,4 +1,4 @@
-import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
+import { IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useLoading, useProxy } from "@allape/use-loading";
 import {
   ExpandAltOutlined,
@@ -6,18 +6,8 @@ import {
   ShrinkOutlined,
 } from "@ant-design/icons";
 import { Button, Empty, ModalProps, Spin, Splitter, SplitterProps } from "antd";
-import {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useTranslation } from "react-i18next";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useMobile } from "../../../index.ts";
-import Default from "../../i18n";
 import CrudyModal from "../CrudyModal";
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
 import SelectionList, { ISelectionListProps } from "./SelectionList.tsx";
@@ -65,11 +55,7 @@ export interface IAdvancedCrudySelectorProps<
   onChange?: (value: T["id"][]) => void;
 
   height?: ISelectionListProps["height"];
-  /**
-   * ID field will always be available for search
-   * @deprecated not support yet
-   */
-  extraFilterFields?: (keyof T)[];
+  extraFilterFields?: ISelectionListProps<T>["extraFilterFields"];
 
   listProps?: Omit<ISelectionListProps<T>, "value" | "onChange" | "height">;
   tableProps: ICrudyTableProps<T, SP>;
@@ -82,7 +68,7 @@ export default function AdvancedCrudySelector<
   value,
   onChange,
   height: propsHeight = 300,
-  // extraFilterFields: propsExtraFilterFields,
+  extraFilterFields,
   listProps,
   tableProps,
 }: IAdvancedCrudySelectorProps<T, SP>): ReactElement {
@@ -90,60 +76,9 @@ export default function AdvancedCrudySelector<
 
   const isMobile = useMobile();
 
-  const { t } = useTranslation();
-
   const { loading, execute } = useLoading();
 
-  // const extraFilterFieldsRef = usePropAsRef(propsExtraFilterFields);
-
-  // const [keywords, keywordsRef, setKeywords] = useProxy<string>("");
-
-  const [records, recordsRef, _setRecords] = useProxy<T[]>([]);
-  // const [listRecords, setListRecords] = useState<T[]>([]);
-
-  // const searchList = useCallback(() => {
-  //   const kw = keywordsRef.current.trim();
-  //
-  //   if (!kw) {
-  //     setListRecords(recordsRef.current);
-  //     return;
-  //   }
-  //
-  //   const extraFilterFields = extraFilterFieldsRef.current || [];
-  //
-  //   setListRecords(
-  //     recordsRef.current.filter((record) => {
-  //       if (`${record.id}` === keywordsRef.current) {
-  //         return true;
-  //       }
-  //
-  //       for (const field of extraFilterFields) {
-  //         if (`${record[field]}`.includes(keywordsRef.current)) {
-  //           return true;
-  //         }
-  //       }
-  //
-  //       return false;
-  //     }),
-  //   );
-  // }, [extraFilterFieldsRef, keywordsRef, recordsRef]);
-
-  const setRecords = useCallback<Dispatch<SetStateAction<T[]>>>(
-    (recordsOrSetter) => {
-      _setRecords(recordsOrSetter);
-      // searchList();
-    },
-    // [_setRecords, searchList],
-    [_setRecords],
-  );
-
-  // const handleSearchChange = useCallback(
-  //   (e: ChangeEvent<HTMLInputElement>) => {
-  //     setKeywords(e.target.value);
-  //     searchList();
-  //   },
-  //   [searchList, setKeywords],
-  // );
+  const [records, recordsRef, setRecords] = useProxy<T[]>([]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -231,9 +166,9 @@ export default function AdvancedCrudySelector<
   const renderedList = (
     <Spin spinning={loading}>
       <SelectionList
-        // value={listRecords}
         value={records}
         onChange={handleSelectionListChange}
+        extraFilterFields={extraFilterFields}
         cardProps={{
           styles: {
             root: open
@@ -243,33 +178,8 @@ export default function AdvancedCrudySelector<
                 }
               : undefined,
           },
-          // title: (
-          //   <Input
-          //     type="search"
-          //     placeholder={i18n.ot(
-          //       "gocrud.selector.total",
-          //       Default.gocrud.selector.total,
-          //       t,
-          //       {
-          //         count: records.length,
-          //       },
-          //     )}
-          //     allowClear
-          //     value={keywords}
-          //     onChange={handleSearchChange}
-          //   />
-          // ),
-          title: i18n.ot(
-            "gocrud.selector.total",
-            Default.gocrud.selector.total,
-            t,
-            {
-              count: records.length,
-            },
-          ),
           extra: (
             <>
-              {/*<Divider orientation="vertical" />*/}
               <Button
                 type="primary"
                 danger={open}

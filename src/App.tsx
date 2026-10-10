@@ -472,13 +472,13 @@ function TagAdvancedSelector(
   return (
     <AdvancedCrudySelector<ITag, ITagSearchParams>
       {...props}
-      // extraFilterFields={["name"]}
+      extraFilterFields={["name"]}
       listProps={listProps}
       tableProps={{
         ...tableProps,
         scroll: {
           x: true,
-          y: "calc(100vh - 300px)",
+          y: "calc(100vh - 340px)",
         },
       }}
     />

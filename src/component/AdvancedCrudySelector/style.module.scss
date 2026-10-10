@@ -1,11 +1,16 @@
-.item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+.itemWrapper {
+  .item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  &.dimmed {
+    opacity: 0.3;
+  }
 }
 
 .wrapper {
-
 }
 
