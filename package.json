@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "build:plugin": "tsc --ignoreConfig vite-plugin.ts"
   },
   "dependencies": {
     "@allape/gocrud": "github:allape/gocrud-js",
