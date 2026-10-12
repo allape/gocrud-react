@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import "./index.scss";
 import { ThemeProvider } from "../index.ts";
 import App from "./App.tsx";
+import TitleManager from "./helper/titlemanager.ts";
 import { getLanguage, setup } from "./i18n";
 
 function getLocale(): Locale | undefined {
@@ -16,7 +17,10 @@ function getLocale(): Locale | undefined {
   return undefined;
 }
 
+const titleManager = new TitleManager();
+
 setup().then(() => {
+  titleManager.setAppTitle("React Demo for Gocrud");
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <ThemeProvider locale={getLocale()}>
