@@ -79,8 +79,8 @@ export function DefaultSetTitleFunc(title: string): void {
 }
 
 export default class TitleManager {
-  private _blinkTimerId: number = -1;
-  private _scrollTimerId: number = -1;
+  private _blinkTimerId: ReturnType<typeof setInterval> | undefined;
+  private _scrollTimerId: ReturnType<typeof setInterval> | undefined;
 
   private _titleStack: ITitleFrame[] = [];
 
@@ -231,5 +231,3 @@ export default class TitleManager {
     Critical: 1_000_000 as Priority,
   };
 }
-
-export const defaultTitleManager = new TitleManager();
