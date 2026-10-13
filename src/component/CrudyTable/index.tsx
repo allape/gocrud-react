@@ -46,7 +46,7 @@ import { Pagination, RecursivePartial } from "../../helper/antd.tsx";
 import { newSet } from "../../helper/array.ts";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import { FalseToStop, Promisable } from "../../helper/misc.ts";
-import { Size, useSize } from "../../hook/useMobile.ts";
+import { Size, useSize } from "../../hook/useBreakpoint.ts";
 import Default from "../../i18n";
 import CrudyModal from "../CrudyModal";
 import Flex from "../Flex";
@@ -58,6 +58,10 @@ type ModifiedPagination = Omit<Pagination, "current" | "pageSize"> &
 
 type FormAction = "add" | "edit" | "duplicate";
 
+const DefaultScroll: ICrudyTableProps["scroll"] = {
+  x: true,
+};
+
 // noinspection JSUnusedGlobalSymbols
 const DefaultPagination: ModifiedPagination = {
   current: 1,
@@ -66,7 +70,7 @@ const DefaultPagination: ModifiedPagination = {
   showQuickJumper: true,
   pageSizeOptions: ["10", "20", "50", "100"],
   showTotal: (total, range) =>
-    t("gocrud.totalRender", {
+    i18n.ot("gocrud.totalRender", Default.gocrud.totalRender, t, {
       from: range[0],
       to: range[1],
       total,
@@ -156,7 +160,6 @@ export interface ICrudyTableProps<
   className?: string;
   searchParams?: SP;
   emitter?: CrudyEventEmitter<T, SP>;
-  mobileMaxWidth?: number;
   /**
    * Delay for `getList` function, for rapid props change
    */
@@ -181,11 +184,10 @@ export default function CrudyTable<
   className,
   searchParams: propsSearchParams,
   emitter,
-  mobileMaxWidth,
   delay = 50,
   loadingFunctions: propsLoadingFunctions,
 
-  scroll,
+  scroll = DefaultScroll,
   columns,
   pagination: propsPagination,
   actions,
@@ -417,7 +419,7 @@ export default function CrudyTable<
     [beforeEdit, defaultFormValue, execute, form, openForm],
   );
 
-  const size = useSize(mobileMaxWidth);
+  const size = useSize();
 
   const columnsWithActions = useMemo<TableColumnsType<T>>(
     () => [

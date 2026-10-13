@@ -43,6 +43,7 @@ import AdvancedSearch from "./component/AdvancedSearch";
 import { IUseProps } from "./component/CrudyTable/useProps.tsx";
 import { asDefaultPattern } from "./helper/datetime.ts";
 import { cut } from "./helper/misc.ts";
+import useMobile from "./hook/useBreakpoint.ts";
 import styles from "./style.module.scss";
 
 import Comments from "./testdata/comments.json";
@@ -99,6 +100,8 @@ type ISearchParams = IUserSearchParams;
 export default function App(): ReactElement {
   const loadingFunctions = useLoading();
   const { loading, execute } = loadingFunctions;
+
+  const isMobile = useMobile();
 
   const emitter = useMemo(
     () => ({
@@ -308,7 +311,7 @@ export default function App(): ReactElement {
   return (
     <div className={styles.wrapper}>
       <CrudyTable<IRecord, ISearchParams>
-        name="User"
+        name={`${isMobile ? "Mobile" : ""} User`}
         crudy={UserCrudy}
         emitter={emitter.User}
         columns={columns}
