@@ -72,15 +72,6 @@ const DefaultPagination: ModifiedPagination = {
     }),
 };
 
-export interface ISwitch {
-  reloadable?: boolean;
-  creatable?: boolean;
-  editable?: boolean;
-  duplicatable?: boolean;
-  deletable?: boolean;
-  pageable?: boolean;
-}
-
 export interface IForm<T extends IBase> {
   children?:
     React.ReactNode | ((record?: RecursivePartial<T>) => React.ReactNode);
@@ -103,6 +94,15 @@ export interface IFormEvent<T extends IBase> {
   ) => Promisable<FalseToStop | void>;
   afterListed?: (records: T[]) => Promisable<T[]>;
   onDelete?: (record: T) => Promisable<void>;
+}
+
+export interface ITableSwitch {
+  reloadable?: boolean;
+  creatable?: boolean;
+  editable?: boolean;
+  duplicatable?: boolean;
+  deletable?: boolean;
+  pageable?: boolean;
 }
 
 export interface ITable<T extends IBase> {
@@ -143,7 +143,7 @@ export interface ICrudyTableProps<
   SP extends IBaseSearchParams = IBaseSearchParams,
 >
   extends
-    ISwitch,
+    ITableSwitch,
     IForm<T>,
     IFormEvent<T>,
     ITable<T>,
