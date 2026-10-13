@@ -1,0 +1,14 @@
+$landscape-width: 800px;
+$portrait-width: 400px;
+
+@mixin landscape {
+  @media screen and (max-width: $landscape-width) {
+    @content;
+  }
+}
+
+@mixin portrait {
+  @media screen and (max-width: $portrait-width) {
+    @content;
+  }
+}

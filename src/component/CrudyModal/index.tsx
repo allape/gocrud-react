@@ -1,7 +1,10 @@
 import { Modal, ModalProps } from "antd";
-import React, { CSSProperties, useEffect, useState } from "react";
+import { ModalSemanticType } from "antd/es/modal/interface";
+import cls from "classnames";
+import React, { useEffect, useMemo, useState } from "react";
 import { AntdModalInitZIndex } from "../../config/antd.ts";
-import useMobile from "../../hook/useMobile.ts";
+import { mergeSemanticType } from "../../helper/antd.tsx";
+import styles from "./style.module.scss";
 
 let ModalOpenCount = 0;
 let ModalOpenAccumulatedCount = 0;
@@ -10,16 +13,13 @@ function NowIndex(): number {
   return AntdModalInitZIndex + ModalOpenAccumulatedCount * 2;
 }
 
-export type ModalStyles = { body?: CSSProperties };
-
 export default function CrudyModal({
   children,
   open,
-  styles,
+  className,
+  classNames: propsClassNames,
   ...props
 }: ModalProps): React.ReactElement {
-  const isMobile = useMobile();
-
   const [zIndex, setZIndex] = useState<number>(NowIndex);
 
   useEffect(() => {
@@ -39,23 +39,26 @@ export default function CrudyModal({
     }
   }, [open]);
 
+  const classNames = useMemo(() => {
+    return mergeSemanticType<ModalProps, ModalSemanticType, "classNames">(
+      propsClassNames,
+      (old) => {
+        return {
+          ...old,
+          container: cls(styles.container, old?.container),
+          body: cls(styles.body, old?.body),
+        };
+      },
+    );
+  }, [propsClassNames]);
+
   return (
     <Modal
       open={open}
       zIndex={zIndex}
       {...props}
-      styles={{
-        ...styles,
-        body: {
-          padding: isMobile ? "10px" : "",
-          ...(styles as ModalStyles)?.body, // TypeScript emits "TS2339: Property body does not exist on type"
-        },
-      }}
-      style={{
-        top: isMobile ? "0" : "10px",
-        paddingBottom: isMobile ? "0" : undefined,
-        ...props.style,
-      }}
+      classNames={classNames}
+      className={cls(styles.dialog, className)}
     >
       {children}
     </Modal>

@@ -1,0 +1,26 @@
+@use "../../style/mobile";
+
+.dialog {
+  top: 8px;
+
+  @include mobile.landscape {
+    top: 0;
+    padding-bottom: 0;
+
+    .container {
+      padding: 8px;
+    }
+    .body {
+      padding: 8px;
+    }
+  }
+
+  @include mobile.portrait {
+    top: 0;
+    padding-bottom: 0;
+
+    .body {
+      padding: 0;
+    }
+  }
+}

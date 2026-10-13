@@ -628,9 +628,13 @@ export default function CrudyTable<
                 allowClear
                 value={titleSearch}
                 onChange={(e) => setTitleSearch(e.target.value)}
-                // onBlur={() => handleTitleSearch()}
                 onPressEnter={() => handleTitleSearch(true)}
-                onSearch={() => handleTitleSearch(true)}
+                onSearch={(_v, _e, info) => {
+                  if (info?.source === "clear") {
+                    return;
+                  }
+                  handleTitleSearch(true).then();
+                }}
                 loading={loading}
                 readOnly={loading}
               />

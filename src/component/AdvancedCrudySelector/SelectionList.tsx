@@ -38,6 +38,7 @@ import {
   ListyProps,
   MenuProps,
 } from "antd";
+import { CardSemanticAllType } from "antd/es/card/Card";
 import cls from "classnames";
 import {
   ChangeEvent,
@@ -51,9 +52,9 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { mergeSemanticType } from "../../helper/antd.tsx";
 import usePropAsRef from "../../hook/usePropAsRef.ts";
 import Default from "../../i18n";
-import { ModalStyles } from "../CrudyModal";
 import Flex from "../Flex";
 import styles from "./style.module.scss";
 
@@ -193,9 +194,11 @@ export default function SelectionList<T extends IBase = IBase>({
 
   extraFilterFields: propsExtraFilterFields,
 
-  cardProps,
+  cardProps: propsCardProps,
   ...props
 }: ISelectionListProps<T>): ReactElement {
+  const { styles: propsCardStyles, ...cardProps } = propsCardProps || {};
+
   const { t } = useTranslation();
 
   const extraFilterFieldsRef = usePropAsRef(propsExtraFilterFields);
@@ -306,6 +309,19 @@ export default function SelectionList<T extends IBase = IBase>({
     );
   };
 
+  const cardStyles = useMemo(() => {
+    return mergeSemanticType<CardProps, CardSemanticAllType, "styles">(
+      propsCardStyles,
+      (old) => ({
+        ...old,
+        body: {
+          ...BodyStyles,
+          ...old?.body,
+        },
+      }),
+    );
+  }, [propsCardStyles]);
+
   return (
     <div className={styles.wrapper}>
       <DndContext
@@ -341,13 +357,7 @@ export default function SelectionList<T extends IBase = IBase>({
                 <Divider orientation="vertical" />
               </Flex>
             }
-            styles={{
-              ...cardProps?.styles,
-              body: {
-                ...BodyStyles,
-                ...(cardProps?.styles as ModalStyles)?.body,
-              },
-            }}
+            styles={cardStyles}
           >
             <Listy<T, T["id"]>
               rowKey="id"
