@@ -28,6 +28,7 @@ import cls from "classnames";
 import { t } from "i18next";
 import React, {
   Key,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -150,7 +151,7 @@ export interface ICrudyTableProps<
     ICard<SP>,
     IFormControllerProps<T> {
   name: string;
-  title?: string;
+  title?: ReactNode;
   crudy?: AntdCrudy<T, SP>;
   className?: string;
   searchParams?: SP;
@@ -608,6 +609,7 @@ export default function CrudyTable<
                 <AppstoreAddOutlined />
               </Button>
             )}
+
             {reloadable && (
               <Button
                 title={`${i18n.ot("gocrud.reload", Default.gocrud.reload, t)}`}
@@ -617,17 +619,23 @@ export default function CrudyTable<
                 {loading ? <LoadingOutlined /> : <ReloadOutlined />}
               </Button>
             )}
+
             {titleSearchField && (
-              <Input
+              <Input.Search
+                type="search"
                 className={styles.titleSearch}
                 placeholder={`${i18n.ot("gocrud.search", Default.gocrud.search, t)}`}
                 allowClear
                 value={titleSearch}
                 onChange={(e) => setTitleSearch(e.target.value)}
-                onBlur={() => handleTitleSearch()}
+                // onBlur={() => handleTitleSearch()}
                 onPressEnter={() => handleTitleSearch(true)}
+                onSearch={() => handleTitleSearch(true)}
+                loading={loading}
+                readOnly={loading}
               />
             )}
+
             {titleExtra}
           </Flex>
         }
