@@ -1,10 +1,11 @@
 import cls from "classnames";
-import React, {
+import {
   CSSProperties,
   ForwardedRef,
   forwardRef,
   HTMLProps,
   PropsWithChildren,
+  ReactElement,
 } from "react";
 import styles from "./style.module.scss";
 
@@ -32,7 +33,7 @@ function Flex(
     ...props
   }: PropsWithChildren<IFlexProps>,
   ref: ForwardedRef<HTMLDivElement>,
-): React.ReactElement {
+): ReactElement {
   return (
     <div
       ref={ref}

@@ -9,7 +9,7 @@ export interface IThemeProviderProps {
   appProps?: AppProps;
 }
 
-export function Wrapper({ children }: PropsWithChildren): ReactNode {
+function Wrapper({ children }: PropsWithChildren): ReactNode {
   const app = App.useApp();
   useEffect(() => {
     (window as AntdAppWindow).antd = app;

@@ -2,11 +2,11 @@ import { ScreenMap } from "antd/es/_util/responsiveObserver";
 import antdUseBreakpoint from "antd/es/grid/hooks/useBreakpoint";
 import { useMemo } from "react";
 
-export function useBreakpoint(): ScreenMap {
+export default function useBreakpoint(): ScreenMap {
   return antdUseBreakpoint(true, null) || {};
 }
 
-export default function useMobile(): boolean {
+export function useMobile(): boolean {
   const breakpoint = useBreakpoint();
 
   return !!(breakpoint.xs || breakpoint.sm) && !breakpoint.md;

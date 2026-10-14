@@ -3,7 +3,7 @@ import { sha256ToHex } from "@allape/gocrud/src/sha256.ts";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload, UploadFile, UploadProps } from "antd";
 import { RcFile } from "antd/es/upload";
-import React, { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { antdupload } from "../../api/antd.tsx";
 
 export interface IUploaderProps extends Omit<
@@ -24,7 +24,7 @@ export default function Uploader({
   listType,
   maxCount = 1,
   ...props
-}: IUploaderProps): React.ReactElement {
+}: IUploaderProps): ReactElement {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);

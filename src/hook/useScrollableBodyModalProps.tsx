@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ModalProps } from "antd";
-import useMobile from "./useBreakpoint.ts";
+import { useMobile } from "./useBreakpoint.ts";
 
 function newDefaultStyle(isMobile: boolean): ModalProps["styles"] {
   return {

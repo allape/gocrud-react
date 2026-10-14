@@ -26,8 +26,9 @@ import {
 } from "antd";
 import cls from "classnames";
 import { t } from "i18next";
-import React, {
+import {
   Key,
+  ReactElement,
   ReactNode,
   useCallback,
   useEffect,
@@ -78,8 +79,7 @@ const DefaultPagination: ModifiedPagination = {
 };
 
 export interface IForm<T extends IBase> {
-  children?:
-    React.ReactNode | ((record?: RecursivePartial<T>) => React.ReactNode);
+  children?: ReactNode | ((record?: RecursivePartial<T>) => ReactNode);
   defaultFormValue?: RecursivePartial<T>;
   saveModalProps?: ModalProps;
 }
@@ -118,16 +118,16 @@ export interface ITable<T extends IBase> {
     record: T;
     execute: UseLoadingReturn["execute"];
     size?: Size;
-  }) => React.ReactNode;
+  }) => ReactNode;
   actionColumnProps?: TableColumnsType<T>[number];
   deleteButtonProps?: ButtonProps;
   tableProps?: TableProps<T>;
 }
 
 export interface ICard<SP extends IBaseSearchParams = IBaseSearchParams> {
-  extra?: React.ReactNode;
+  extra?: ReactNode;
   titleSearchField?: keyof SP;
-  titleExtra?: React.ReactNode;
+  titleExtra?: ReactNode;
   cardProps?: CardProps;
   onTitleSearch?: (searchParams: SP) => Promisable<SP>;
 }
@@ -215,7 +215,7 @@ export default function CrudyTable<
 
   value,
   onChange,
-}: ICrudyTableProps<T, SP>): React.ReactElement {
+}: ICrudyTableProps<T, SP>): ReactElement {
   const { t } = useTranslation();
 
   const loadingFunctions = useLoading();

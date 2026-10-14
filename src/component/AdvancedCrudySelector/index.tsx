@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Empty, ModalProps, Spin, Splitter, SplitterProps } from "antd";
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import useMobile from "../../hook/useBreakpoint.ts";
+import { useMobile } from "../../hook/useBreakpoint.ts";
 import CrudyModal from "../CrudyModal";
 import CrudyTable, { ICrudyTableProps } from "../CrudyTable";
 import SelectionList, { ISelectionListProps } from "./SelectionList.tsx";

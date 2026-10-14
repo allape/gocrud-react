@@ -1,7 +1,7 @@
 import { i18n, IBase, IBaseSearchParams } from "@allape/gocrud";
 import { useToggle } from "@allape/use-loading";
 import { Button, ButtonProps, ModalProps, TableProps } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { EEEvent } from "../../helper/eventemitter.ts";
 import Default from "../../i18n";
@@ -37,7 +37,7 @@ export default function CrudyButton<
   modalProps,
   searchParams: propsSearchParams,
   ...props
-}: ICrudyButtonProps<T, SP>): React.ReactElement {
+}: ICrudyButtonProps<T, SP>): ReactElement {
   const { t } = useTranslation();
 
   const [tableVisible, openTable_, closeTable] = useToggle(false);

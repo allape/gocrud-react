@@ -34,6 +34,7 @@ import AntdCrudy, {
   ICrudySelectorProps,
   NewCrudyButtonEventEmitter,
   PagedCrudySelector,
+  useMobile,
 } from "../index.ts";
 import AdvancedCrudySelector, {
   IAdvancedCrudySelectorProps,
@@ -41,9 +42,8 @@ import AdvancedCrudySelector, {
 import { ISelectionListProps } from "./component/AdvancedCrudySelector/SelectionList.tsx";
 import AdvancedSearch from "./component/AdvancedSearch";
 import { IUseProps } from "./component/CrudyTable/useProps.tsx";
-import { asDefaultPattern } from "./helper/datetime.ts";
+import { datetimeStringify } from "./helper/datetime.ts";
 import { cut } from "./helper/misc.ts";
-import useMobile from "./hook/useBreakpoint.ts";
 import styles from "./style.module.scss";
 
 import Comments from "./testdata/comments.json";
@@ -153,12 +153,12 @@ export default function App(): ReactElement {
       {
         title: "Created At",
         dataIndex: "createdAt",
-        render: asDefaultPattern,
+        render: datetimeStringify,
       },
       {
         title: "Updated At",
         dataIndex: "updatedAt",
-        render: asDefaultPattern,
+        render: datetimeStringify,
       },
     ],
     [],
@@ -418,12 +418,12 @@ function useTagTableProps(): Omit<
       {
         title: "Created At",
         dataIndex: "createdAt",
-        render: asDefaultPattern,
+        render: datetimeStringify,
       },
       {
         title: "Updated At",
         dataIndex: "updatedAt",
-        render: asDefaultPattern,
+        render: datetimeStringify,
       },
     ],
     [],

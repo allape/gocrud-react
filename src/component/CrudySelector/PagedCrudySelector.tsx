@@ -3,8 +3,9 @@ import { IBase } from "@allape/gocrud/src/model";
 import { useLoading } from "@allape/use-loading";
 import { Select, SelectProps, Spin } from "antd";
 import { DefaultOptionType } from "antd/es/select/index";
-import React, {
+import {
   PropsWithChildren,
+  ReactElement,
   useCallback,
   useEffect,
   useMemo,
@@ -35,7 +36,7 @@ export default function PagedCrudySelector<
   SearchParams extends IBaseSearchParams = IBaseSearchParams,
 >(
   props: PropsWithChildren<IPagedCrudySelectorProps<T, SearchParams>>,
-): React.ReactElement {
+): ReactElement {
   const {
     value,
     crudy,

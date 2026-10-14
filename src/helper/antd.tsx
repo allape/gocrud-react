@@ -1,6 +1,6 @@
 import { FormInstance, FormProps, SelectProps, TableProps } from "antd";
 import type { GenerateSemantic } from "antd/es/_util/hooks/useMergeSemantic/semanticType";
-import type React from "react";
+import { CSSProperties } from "react";
 
 export type RecursivePartial<T> = Parameters<
   FormInstance<T>["setFieldsValue"]
@@ -32,7 +32,7 @@ export function mergeSemanticType<
   },
   SEMANTIC_TYPE extends {
     classNames?: Record<string, string | undefined>;
-    styles?: Record<string, React.CSSProperties | undefined>;
+    styles?: Record<string, CSSProperties | undefined>;
   },
   TYPE extends "classNames" | "styles",
   TYPE_FN extends "classNamesAndFn" | "stylesAndFn" = TYPE extends "classNames"

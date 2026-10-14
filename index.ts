@@ -29,7 +29,7 @@ export {
   default as PagedCrudySelector,
   type IPagedCrudySelectorProps,
 } from "./src/component/CrudySelector/PagedCrudySelector.tsx";
-export * as CrudySelectorProps from "./src/component/CrudySelector/selector.ts";
+export * from "./src/component/CrudySelector/selector.ts";
 
 export {
   default as CrudyTable,
@@ -52,6 +52,7 @@ export {
   default as ClickToReview,
   type IClickToReviewProps,
 } from "./src/component/ClickToReview";
+
 export { default as Flex, type IFlexProps } from "./src/component/Flex";
 
 export {
@@ -64,7 +65,10 @@ export {
   type IUploaderProps,
 } from "./src/component/Uploader";
 
-export { default as CrudyModal } from "./src/component/CrudyModal";
+export {
+  default as CrudyModal,
+  type ICrudyModalProps,
+} from "./src/component/CrudyModal";
 
 export {
   default as CrudyModalButton,
@@ -72,10 +76,12 @@ export {
 } from "./src/component/CrudyModalButton";
 
 export * from "./src/hook/useBreakpoint.ts";
+export { default as useBreakpoint } from "./src/hook/useBreakpoint.ts";
+
 export { default as useColorScheme } from "./src/hook/useColorScheme";
 export { default as useScrollableBodyModalProps } from "./src/hook/useScrollableBodyModalProps";
 
-export * as config from "./src/config";
+export * from "./src/config";
 
 export * from "./src/helper/antd";
 export * from "./src/helper/array.ts";
@@ -88,7 +94,9 @@ export {
   type IOptions,
 } from "./src/helper/eventemitter";
 export * from "./src/helper/promise";
+
 export * from "./src/helper/titlemanager";
+export { default as TitleManager } from "./src/helper/titlemanager";
 
 export * as i18n from "./src/i18n";
 

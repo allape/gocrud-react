@@ -1,7 +1,7 @@
 import { Modal, ModalProps } from "antd";
 import { ModalSemanticType } from "antd/es/modal/interface";
 import cls from "classnames";
-import React, { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import { AntdModalInitZIndex } from "../../config/antd.ts";
 import { mergeSemanticType } from "../../helper/antd.tsx";
 import styles from "./style.module.scss";
@@ -13,13 +13,15 @@ function NowIndex(): number {
   return AntdModalInitZIndex + ModalOpenAccumulatedCount * 2;
 }
 
+export type ICrudyModalProps = ModalProps;
+
 export default function CrudyModal({
   children,
   open,
   className,
   classNames: propsClassNames,
   ...props
-}: ModalProps): React.ReactElement {
+}: ICrudyModalProps): ReactElement {
   const [zIndex, setZIndex] = useState<number>(NowIndex);
 
   useEffect(() => {
