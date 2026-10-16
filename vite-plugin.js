@@ -7,9 +7,12 @@ export default function GoCrudVitePlugin(options) {
                 return {
                     optimizeDeps: {
                         include: [
-                            "antd",
-                            "@ant-design/icons",
                             "html-parse-stringify",
+                            "@ant-design/icons",
+                            "react-is",
+                            "is-mobile",
+                            "rc-component/util",
+                            "antd",
                         ].filter((i) => !config.optimizeDeps?.include?.includes(i)),
                     },
                 };
